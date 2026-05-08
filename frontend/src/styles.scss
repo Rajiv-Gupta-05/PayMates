@@ -1,0 +1,57 @@
+/* src/styles.scss */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif; /* Recommended font */
+  background-color: #0B0F19;
+  color: #ffffff;
+  
+  /* Subtle background glow effect */
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(0, 255, 200, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(138, 43, 226, 0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Reusable Glassmorphism Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Customizing Bootstrap inputs for Dark Theme */
+.form-floating .form-control {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.form-floating .form-control:focus {
+  background-color: rgba(0, 0, 0, 0.4);
+  border-color: #00ffcc;
+  box-shadow: 0 0 0 0.25rem rgba(0, 255, 204, 0.25);
+  color: #fff;
+}
+
+.form-floating label {
+  color: #adb5bd;
+}
+
+/* Custom Gradient Button */
+.btn-gradient {
+  background: linear-gradient(135deg, #00ffcc 0%, #007bff 100%);
+  color: #0B0F19;
+  font-weight: 600;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4);
+  color: #0B0F19;
+}

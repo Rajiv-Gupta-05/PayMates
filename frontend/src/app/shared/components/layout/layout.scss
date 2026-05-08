@@ -1,0 +1,33 @@
+.glass-sidebar {
+  width: 280px;
+  background: rgba(11, 15, 25, 0.6);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 10;
+}
+
+.nav-link {
+  transition: all 0.3s ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.active-link {
+  background: rgba(0, 255, 204, 0.1) !important;
+  color: #00ffcc !important;
+  border-left: 4px solid #00ffcc;
+}
+
+.glass-header {
+  background: rgba(11, 15, 25, 0.8);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-bottom-nav {
+  background: rgba(11, 15, 25, 0.9);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: env(safe-area-inset-bottom); /* For iOS rounded corners */
+}

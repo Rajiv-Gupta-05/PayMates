@@ -1,0 +1,50 @@
+<div class="friends-wrapper">
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-5">
+    <div>
+      <h2 class="fw-bold mb-1">Friends</h2>
+      <p class="text-secondary m-0">Your network and direct balances.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-gradient d-none d-md-flex align-items-center justify-content-center gap-2 px-3 px-md-4 py-2 rounded-pill flex-grow-1 flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+        <i class="bi bi-plus-lg"></i> Add Expense
+      </button>
+      <button class="btn btn-gradient d-flex align-items-center justify-content-center gap-2 px-3 px-md-4 py-2 rounded-pill flex-grow-1 flex-md-grow-0">
+        <i class="bi bi-person-plus-fill"></i> Add Friend
+      </button>
+    </div>
+  </div>
+
+  <div class="glass-card overflow-hidden">
+    <div class="p-3 border-bottom border-secondary border-opacity-25 bg-dark bg-opacity-25">
+      <input type="text" class="form-control bg-transparent text-light border-secondary" placeholder="Search friends...">
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center p-4 border-bottom border-secondary border-opacity-25 transition-hover">
+      <div class="d-flex align-items-center gap-3">
+        <div class="avatar rounded-circle bg-info text-center fw-bold text-dark" style="width: 45px; height: 45px; line-height: 45px;">MR</div>
+        <div>
+          <h5 class="m-0">Mike Ross</h5>
+          <small class="text-secondary">mike.ross&#64;example.com</small>
+        </div>
+      </div>
+      <div class="text-end">
+        <p class="text-secondary small m-0">Owes you</p>
+        <h5 class="m-0" style="color: #00ffcc;">+$190.50</h5>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center p-4 transition-hover">
+      <div class="d-flex align-items-center gap-3">
+        <div class="avatar rounded-circle bg-warning text-center fw-bold text-dark" style="width: 45px; height: 45px; line-height: 45px;">SJ</div>
+        <div>
+          <h5 class="m-0">Sarah Jenkins</h5>
+          <small class="text-secondary">sarah.j&#64;example.com</small>
+        </div>
+      </div>
+      <div class="text-end">
+        <p class="text-secondary small m-0">You owe</p>
+        <h5 class="m-0 text-danger">-$45.00</h5>
+      </div>
+    </div>
+  </div>
+</div>

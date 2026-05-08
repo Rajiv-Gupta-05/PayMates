@@ -1,0 +1,76 @@
+<div class="dashboard-wrapper">
+  
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <h2 class="fw-bold mb-1">Dashboard</h2>
+      <p class="text-secondary m-0">Welcome back, John. Here is your summary.</p>
+    </div>
+    <button class="btn btn-gradient d-none d-md-flex align-items-center gap-2 px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+      <i class="bi bi-plus-lg"></i> Add Expense
+    </button>
+  </div>
+
+  <div class="glass-card p-4 p-md-5 mb-5 text-center position-relative overflow-hidden">
+    <div class="position-absolute top-0 start-50 translate-middle w-50 h-100" style="background: radial-gradient(circle, rgba(0,255,204,0.1) 0%, transparent 70%); z-index: 0;"></div>
+    
+    <div class="position-relative z-1">
+      <p class="text-secondary text-uppercase tracking-wide fw-semibold mb-2">Total Balance</p>
+      <h1 class="display-3 fw-bold m-0" style="color: #00ffcc;">+$145.50</h1>
+      <p class="mt-3 text-light">You are owed more than you owe.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    
+    <div class="col-12 col-md-6">
+      <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+        <i class="bi bi-arrow-up-right-circle text-danger"></i> You owe
+      </h5>
+      <div class="glass-card p-0 overflow-hidden">
+        
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-3">
+            <div class="avatar rounded-circle bg-secondary text-center" style="width: 40px; height: 40px; line-height: 40px;">S</div>
+            <div>
+              <h6 class="m-0">Sarah Jenkins</h6>
+              <small class="text-secondary">Goa Trip</small>
+            </div>
+          </div>
+          <div class="text-end">
+            <h6 class="m-0 text-danger">-$45.00</h6>
+          </div>
+        </div>
+        
+        <div class="p-3 text-center">
+          <a href="#" class="text-decoration-none text-secondary small">View all</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+        <i class="bi bi-arrow-down-left-circle text-success"></i> You are owed
+      </h5>
+      <div class="glass-card p-0 overflow-hidden">
+        
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-3">
+            <div class="avatar rounded-circle bg-info text-center" style="width: 40px; height: 40px; line-height: 40px;">M</div>
+            <div>
+              <h6 class="m-0">Mike Ross</h6>
+              <small class="text-secondary">Dinner at Joe's</small>
+            </div>
+          </div>
+          <div class="text-end">
+            <h6 class="m-0" style="color: #00ffcc;">+$190.50</h6>
+          </div>
+        </div>
+
+        <div class="p-3 text-center">
+          <a href="#" class="text-decoration-none text-secondary small">View all</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
