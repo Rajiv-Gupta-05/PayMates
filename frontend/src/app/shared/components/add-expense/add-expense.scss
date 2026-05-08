@@ -1,0 +1,92 @@
+/* Custom Glass Modal Styling */
+.glass-modal {
+  background: rgba(15, 20, 35, 0.85); /* Slightly more opaque for readability over the dashboard */
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modal-accent-bar {
+  height: 5px;
+  width: 100%;
+  background: linear-gradient(90deg, #00ffcc, #007bff);
+}
+
+/* Massive Amount Input Focus */
+.amount-input {
+  background: transparent !important;
+  border: none !important;
+  color: #00ffcc !important;
+  font-size: 4.5rem !important;
+  font-weight: 700;
+  text-align: left;
+  max-width: 220px;
+  padding: 0;
+  box-shadow: none !important;
+  height: auto;
+}
+
+.amount-input::placeholder {
+  color: rgba(0, 255, 204, 0.2);
+}
+
+/* Remove default arrows from the number input */
+.amount-input::-webkit-outer-spin-button,
+.amount-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Seamless Icon Input Groups */
+.custom-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+
+  &:focus-within {
+    border-color: #00ffcc;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+  }
+  
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+.glass-input {
+  background: transparent !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 1.2rem 1.2rem 1.2rem 0.75rem;
+  box-shadow: none !important;
+  
+  &:focus {
+    box-shadow: none !important;
+  }
+  
+  option {
+    background: #0B0F19; /* Ensures dropdown options are readable on Windows/Linux */
+    color: #fff;
+  }
+}
+
+/* Interactive Split Logic Area */
+.split-logic-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(0, 255, 204, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  }
+}

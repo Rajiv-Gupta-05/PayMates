@@ -1,0 +1,56 @@
+<div class="container-fluid p-0">
+  <div class="row vh-100 g-0">
+    
+    <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center position-relative">
+      <div class="text-center z-1">
+        <h1 class="display-3 fw-bold mb-3">PayMates<span style="color: #00ffcc;">.</span></h1>
+        <p class="lead text-light opacity-75">Less Math, More Memories. ✨</p>
+      </div>
+    </div>
+
+    <div class="col-lg-6 col-12 d-flex justify-content-center align-items-center p-4">
+      <div class="glass-card p-5 w-100" style="max-width: 450px;">
+        
+        <div class="text-center d-lg-none mb-4">
+          <h2 class="fw-bold">PayMates<span style="color: #00ffcc;">.</span></h2>
+        </div>
+
+        <h3 class="mb-1 fw-bold">Welcome back</h3>
+        <p class="text-secondary mb-4">Enter your details to access your account.</p>
+
+        <button (click)="loginWithGoogle()" class="btn btn-outline-light w-100 mb-4 d-flex justify-content-center align-items-center gap-2 py-2 rounded-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
+            <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
+          </svg>
+          Log in with Google
+        </button>
+
+        <div class="d-flex align-items-center mb-4">
+          <hr class="flex-grow-1 border-secondary">
+          <span class="mx-3 text-secondary small">OR</span>
+          <hr class="flex-grow-1 border-secondary">
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div class="form-floating mb-3">
+            <input type="email" class="form-control rounded-3" id="emailInput" placeholder="name@example.com" formControlName="email">
+            <label for="emailInput">Email address</label>
+          </div>
+
+          <div class="form-floating mb-4">
+            <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password">
+            <label for="passwordInput">Password</label>
+          </div>
+
+          <button type="submit" class="btn btn-gradient w-100 py-3 rounded-3" [disabled]="loginForm.invalid">
+            Sign In
+          </button>
+        </form>
+
+        <p class="text-center mt-4 mb-0 text-secondary">
+          Don't have an account? <a routerLink="/register" class="text-decoration-none" style="color: #00ffcc;">Sign up here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

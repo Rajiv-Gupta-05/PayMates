@@ -1,0 +1,49 @@
+<div class="container-fluid p-0">
+  <div class="row vh-100 g-0">
+    
+    <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center position-relative">
+      <div class="text-center z-1">
+        <h1 class="display-3 fw-bold mb-3">PayMates<span style="color: #00ffcc;">.</span></h1>
+        <p class="lead text-light opacity-75">Your money, perfectly balanced.</p>
+      </div>
+    </div>
+
+    <div class="col-lg-6 col-12 d-flex justify-content-center align-items-center p-4">
+      <div class="glass-card p-5 w-100" style="max-width: 450px;">
+        
+        <div class="text-center d-lg-none mb-4">
+          <h2 class="fw-bold">PayMates<span style="color: #00ffcc;">.</span></h2>
+        </div>
+
+        <h3 class="mb-1 fw-bold">Create an account</h3>
+        <p class="text-secondary mb-4">Join today and start splitting expenses easily.</p>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control rounded-3" id="nameInput" placeholder="John Doe" formControlName="fullName">
+            <label for="nameInput">Full Name</label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <input type="email" class="form-control rounded-3" id="emailInput" placeholder="name@example.com" formControlName="email">
+            <label for="emailInput">Email address</label>
+          </div>
+
+          <div class="form-floating mb-4">
+            <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password">
+            <label for="passwordInput">Password (min 6 chars)</label>
+          </div>
+
+          <button type="submit" class="btn btn-gradient w-100 py-3 rounded-3" [disabled]="registerForm.invalid">
+            Create Account
+          </button>
+        </form>
+
+        <p class="text-center mt-4 mb-0 text-secondary">
+          Already have an account? <a routerLink="/login" class="text-decoration-none" style="color: #00ffcc;">Log in here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
