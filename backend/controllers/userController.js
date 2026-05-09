@@ -1,7 +1,9 @@
 const User = require('../models/User');
 
+// @desc    Get logged-in user's profile
+// @route   GET /api/users/me
+// @access  Private
 exports.getUserProfile = async (req, res) => {
-  // Because the middleware already found the user, we can just send req.user back!
   if (req.user) {
     res.json(req.user);
   } else {
@@ -9,31 +11,47 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
-// @desc    Search for users by email or name (excluding yourself)
-// @route   GET /api/users?search=rajiv
+// @desc    Search for users by name or email (excluding yourself)
+// @route   GET /api/users?search=query
 // @access  Private
 exports.searchUsers = async (req, res) => {
-  const keyword = req.query.search
-    ? {
-        $or: [
-          { name: { $regex: req.query.search, $options: 'i' } },
-          { email: { $regex: req.query.search, $options: 'i' } },
-        ],
-      }
-    : {};
+  try {
+    const keyword = req.query.search
+      ? {
+          $or: [
+            { name: { $regex: req.query.search.trim(), $options: 'i' } },
+            { email: { $regex: req.query.search.trim(), $options: 'i' } },
+          ],
+        }
+      : {};
 
-  // Find users matching the keyword, BUT exclude the currently logged-in user
-  const users = await User.find({ ...keyword, _id: { $ne: req.user._id } }).select('-password');
-  res.json(users);
+    const users = await User.find({
+      ...keyword,
+      _id: { $ne: req.user._id },
+    }).select('-password');
+
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
 };
 
-// @desc    Add a friend
+// @desc    Add a friend (bidirectional, duplicate-safe)
 // @route   POST /api/users/add-friend
 // @access  Private
 exports.addFriend = async (req, res) => {
-  const { friendId } = req.body;
-
   try {
+    const { friendId } = req.body;
+
+    if (!friendId) {
+      return res.status(400).json({ message: 'friendId is required' });
+    }
+
+    // Cannot add yourself
+    if (friendId === req.user._id.toString()) {
+      return res.status(400).json({ message: 'You cannot add yourself as a friend' });
+    }
+
     const user = await User.findById(req.user._id);
     const friend = await User.findById(friendId);
 
@@ -41,14 +59,18 @@ exports.addFriend = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if they are already friends
-    if (user.friends.includes(friendId)) {
-      return res.status(400).json({ message: 'User is already your friend' });
+    // ✅ FIX: Check BOTH directions to prevent duplicate entries
+    const alreadyFriends =
+      user.friends.map((id) => id.toString()).includes(friendId) ||
+      friend.friends.map((id) => id.toString()).includes(user._id.toString());
+
+    if (alreadyFriends) {
+      return res.status(400).json({ message: 'You are already friends with this user' });
     }
 
-    // Add friend to user's array (and optionally add user to friend's array)
+    // Bidirectional friendship
     user.friends.push(friendId);
-    friend.friends.push(user._id); // Makes it a two-way friendship automatically
+    friend.friends.push(user._id);
 
     await user.save();
     await friend.save();
@@ -59,12 +81,47 @@ exports.addFriend = async (req, res) => {
   }
 };
 
+// @desc    Remove a friend (bidirectional)
+// @route   DELETE /api/users/friends/:friendId
+// @access  Private
+exports.removeFriend = async (req, res) => {
+  try {
+    const { friendId } = req.params;
+
+    if (friendId === req.user._id.toString()) {
+      return res.status(400).json({ message: 'Invalid request' });
+    }
+
+    const user = await User.findById(req.user._id);
+    const friend = await User.findById(friendId);
+
+    if (!friend) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isFriend = user.friends.map((id) => id.toString()).includes(friendId);
+    if (!isFriend) {
+      return res.status(400).json({ message: 'This user is not in your friends list' });
+    }
+
+    // Remove from both sides
+    user.friends = user.friends.filter((id) => id.toString() !== friendId);
+    friend.friends = friend.friends.filter((id) => id.toString() !== req.user._id.toString());
+
+    await user.save();
+    await friend.save();
+
+    res.json({ message: 'Friend removed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
 // @desc    Get logged-in user's friends list
 // @route   GET /api/users/friends
 // @access  Private
 exports.getFriends = async (req, res) => {
   try {
-    // .populate() replaces the IDs in the array with the actual user data!
     const user = await User.findById(req.user._id).populate('friends', 'name email');
     res.json(user.friends);
   } catch (error) {

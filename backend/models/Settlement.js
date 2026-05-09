@@ -19,6 +19,10 @@ const settlementSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group',
     default: null // Optional: if they are settling a specific group debt
+  },
+  note: {
+    type: String,
+    default: '' // Optional message (e.g., "Paid via UPI")
   }
 }, { timestamps: true });
 

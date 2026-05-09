@@ -26,6 +26,15 @@ const expenseSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  category: {
+    type: String,
+    enum: ['FOOD', 'TRANSPORT', 'ACCOMMODATION', 'UTILITIES', 'ENTERTAINMENT', 'SHOPPING', 'OTHER'],
+    default: 'OTHER'
+  },
+  date: {
+    type: Date,
+    default: Date.now // The date the expense actually occurred
+  },
   groupId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group',

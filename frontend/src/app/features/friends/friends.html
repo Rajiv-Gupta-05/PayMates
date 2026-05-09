@@ -1,49 +1,236 @@
 <div class="friends-wrapper">
+  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center gap-3 mb-5">
     <div>
       <h2 class="fw-bold mb-1">Friends</h2>
       <p class="text-secondary m-0">Your network and direct balances.</p>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-gradient d-none d-md-flex align-items-center justify-content-center gap-2 px-3 px-md-4 py-2 rounded-pill flex-grow-1 flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+      <button class="btn btn-gradient d-none d-md-flex align-items-center gap-2 px-4 py-2 rounded-pill"
+              data-bs-toggle="modal" data-bs-target="#addExpenseModal">
         <i class="bi bi-plus-lg"></i> Add Expense
       </button>
-      <button class="btn btn-gradient d-flex align-items-center justify-content-center gap-2 px-3 px-md-4 py-2 rounded-pill flex-grow-1 flex-md-grow-0">
+      <button class="btn btn-gradient d-flex align-items-center gap-2 px-4 py-2 rounded-pill"
+              data-bs-toggle="modal" data-bs-target="#addFriendModal"
+              (click)="addSearchQuery=''; addSearchResults=[]; addFriendError=''; addFriendSuccess=''">
         <i class="bi bi-person-plus-fill"></i> Add Friend
       </button>
     </div>
   </div>
 
-  <div class="glass-card overflow-hidden">
-    <div class="p-3 border-bottom border-secondary border-opacity-25 bg-dark bg-opacity-25">
-      <input type="text" class="form-control bg-transparent text-light border-secondary" placeholder="Search friends...">
-    </div>
+  <!-- Search Bar -->
+  <div class="glass-card p-3 mb-4">
+    <input type="text" class="form-control bg-transparent text-light border-0 px-0"
+           placeholder="🔍  Search friends..." [(ngModel)]="searchQuery">
+  </div>
 
-    <div class="d-flex justify-content-between align-items-center p-4 border-bottom border-secondary border-opacity-25 transition-hover">
-      <div class="d-flex align-items-center gap-3">
-        <div class="avatar rounded-circle bg-info text-center fw-bold text-dark" style="width: 45px; height: 45px; line-height: 45px;">MR</div>
-        <div>
-          <h5 class="m-0">Mike Ross</h5>
-          <small class="text-secondary">mike.ross&#64;example.com</small>
+  <!-- Remove Error -->
+  <div *ngIf="removeError" class="alert alert-danger py-2 mb-3">{{ removeError }}</div>
+
+  <!-- Empty State -->
+  <div *ngIf="friends.length === 0" class="text-center py-5">
+    <i class="bi bi-people" style="font-size:4rem;color:rgba(255,255,255,0.2);"></i>
+    <h4 class="mt-3 text-secondary">No friends yet</h4>
+    <p class="text-secondary">Add friends to start splitting expenses together.</p>
+    <button class="btn btn-gradient px-4 rounded-pill mt-2" data-bs-toggle="modal" data-bs-target="#addFriendModal">
+      <i class="bi bi-person-plus-fill me-2"></i>Add your first friend
+    </button>
+  </div>
+
+  <!-- Friends List -->
+  <div *ngIf="filteredFriends.length > 0" class="glass-card p-0 overflow-hidden">
+    <ng-container *ngFor="let friend of filteredFriends; let last = last">
+
+      <!-- Normal Row -->
+      <div *ngIf="removingFriendId !== friend._id"
+           class="d-flex justify-content-between align-items-center p-4 transition-hover"
+           [class.border-bottom]="!last" style="border-color:rgba(255,255,255,0.08) !important;">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
+               style="width:45px;height:45px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:14px;">
+            {{ getInitials(friend.name) }}
+          </div>
+          <div>
+            <h5 class="m-0">{{ friend.name }}</h5>
+            <small class="text-secondary">{{ friend.email }}</small>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-end">
+            <p class="text-secondary small m-0">
+              {{ getBalance(friend._id) > 0 ? 'Owes you' : getBalance(friend._id) < 0 ? 'You owe' : 'Settled up' }}
+            </p>
+            <h5 class="m-0 fw-bold"
+                [style.color]="getBalance(friend._id) > 0 ? '#00ffcc' : getBalance(friend._id) < 0 ? '#ff6b6b' : '#adb5bd'">
+              ₹{{ abs(getBalance(friend._id)) | number:'1.2-2' }}
+            </h5>
+          </div>
+          <div class="d-flex flex-column gap-2">
+            <button *ngIf="getBalance(friend._id) !== 0"
+                    class="btn btn-sm rounded-pill px-3 fw-semibold"
+                    style="background:rgba(0,255,204,0.15);border:1px solid rgba(0,255,204,0.3);color:#00ffcc;font-size:12px;"
+                    (click)="openSettleModal(friend)"
+                    data-bs-toggle="modal" data-bs-target="#settleModal">
+              <i class="bi bi-cash-stack me-1"></i>Settle Up
+            </button>
+            <button class="btn btn-sm rounded-pill px-3"
+                    style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:#ff6b6b;font-size:12px;"
+                    (click)="promptRemove(friend._id)">
+              <i class="bi bi-person-x me-1"></i>Remove
+            </button>
+          </div>
         </div>
       </div>
-      <div class="text-end">
-        <p class="text-secondary small m-0">Owes you</p>
-        <h5 class="m-0" style="color: #00ffcc;">+$190.50</h5>
-      </div>
-    </div>
 
-    <div class="d-flex justify-content-between align-items-center p-4 transition-hover">
-      <div class="d-flex align-items-center gap-3">
-        <div class="avatar rounded-circle bg-warning text-center fw-bold text-dark" style="width: 45px; height: 45px; line-height: 45px;">SJ</div>
-        <div>
-          <h5 class="m-0">Sarah Jenkins</h5>
-          <small class="text-secondary">sarah.j&#64;example.com</small>
+      <!-- Inline Confirm Remove Row -->
+      <div *ngIf="removingFriendId === friend._id"
+           class="p-4 d-flex align-items-center justify-content-between gap-3"
+           [class.border-bottom]="!last"
+           style="border-color:rgba(255,255,255,0.08) !important;background:rgba(255,107,107,0.07);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
+               style="width:45px;height:45px;background:linear-gradient(135deg,#ff9a9e,#fecfef);font-size:14px;">
+            {{ getInitials(friend.name) }}
+          </div>
+          <div>
+            <p class="m-0 fw-semibold text-light">Remove <span style="color:#ff6b6b;">{{ friend.name }}</span>?</p>
+            <small class="text-secondary">This will remove the friendship for both users.</small>
+          </div>
+        </div>
+        <div class="d-flex gap-2 flex-shrink-0">
+          <button class="btn btn-sm rounded-pill px-3"
+                  style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#adb5bd;font-size:12px;"
+                  (click)="cancelRemove()" [disabled]="isRemoving">Cancel</button>
+          <button class="btn btn-sm rounded-pill px-3 fw-semibold"
+                  style="background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.4);color:#ff6b6b;font-size:12px;"
+                  (click)="confirmRemove()" [disabled]="isRemoving">
+            <span *ngIf="isRemoving" class="spinner-border spinner-border-sm me-1"></span>
+            {{ isRemoving ? 'Removing...' : 'Yes, Remove' }}
+          </button>
         </div>
       </div>
-      <div class="text-end">
-        <p class="text-secondary small m-0">You owe</p>
-        <h5 class="m-0 text-danger">-$45.00</h5>
+
+    </ng-container>
+  </div>
+
+  <!-- No search results -->
+  <div *ngIf="friends.length > 0 && filteredFriends.length === 0 && searchQuery" class="text-center py-4 text-secondary">
+    No friends found matching "{{ searchQuery }}"
+  </div>
+</div>
+
+<!-- ═══ Add Friend Modal ══════════════════════════════════════════════ -->
+<div class="modal fade" id="addFriendModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-modal border-0">
+      <div class="modal-accent-bar"></div>
+      <div class="modal-header border-0 pt-4 px-4">
+        <h5 class="modal-title fw-bold"><i class="bi bi-person-plus-fill me-2" style="color:#00ffcc;"></i>Add Friend</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div *ngIf="addFriendSuccess" class="alert py-2 mb-3"
+             style="background:rgba(0,255,204,0.1);border:1px solid rgba(0,255,204,0.3);color:#00ffcc;border-radius:10px;">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ addFriendSuccess }}
+        </div>
+        <div *ngIf="addFriendError" class="alert alert-danger py-2 mb-3" style="border-radius:10px;">
+          {{ addFriendError }}
+        </div>
+
+        <div class="custom-input-group mb-3">
+          <i class="bi bi-search text-secondary ps-4"></i>
+          <input type="text" class="form-control glass-input" placeholder="Search by name or email..."
+                 [(ngModel)]="addSearchQuery" (ngModelChange)="searchForFriend()">
+        </div>
+
+        <!-- Search Results -->
+        <div *ngIf="addSearchResults.length > 0" class="glass-card p-2 mb-2">
+          <div *ngFor="let user of addSearchResults"
+               class="d-flex align-items-center gap-3 p-3 rounded-3 transition-hover">
+            <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
+                 style="width:42px;height:42px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:13px;">
+              {{ getInitials(user.name) }}
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="m-0">{{ user.name }}</h6>
+              <small class="text-secondary">{{ user.email }}</small>
+            </div>
+            <button class="btn btn-sm rounded-pill px-3 fw-semibold flex-shrink-0"
+                    style="background:rgba(0,255,204,0.15);border:1px solid rgba(0,255,204,0.3);color:#00ffcc;"
+                    (click)="addFriend(user)"
+                    [disabled]="isAdding[user._id]">
+              <span *ngIf="isAdding[user._id]" class="spinner-border spinner-border-sm me-1"></span>
+              {{ isAdding[user._id] ? 'Adding...' : '+ Add' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty search state -->
+        <div *ngIf="addSearchQuery.length >= 2 && addSearchResults.length === 0 && !addFriendSuccess"
+             class="text-center py-3 text-secondary">
+          <i class="bi bi-person-x d-block fs-3 mb-1"></i>
+          No users found for "{{ addSearchQuery }}"
+        </div>
+        <p *ngIf="addSearchQuery.length < 2" class="text-secondary small text-center mb-0">
+          Type at least 2 characters to search
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Settle Up Modal ═══════════════════════════════════════════════ -->
+<div class="modal fade" id="settleModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-modal border-0" *ngIf="settleFriend">
+      <div class="modal-accent-bar"></div>
+      <div class="modal-header border-0 pt-4 px-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
+               style="width:42px;height:42px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:14px;">
+            {{ getInitials(settleFriend.name) }}
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Settle Up</h5>
+            <small class="text-secondary">with {{ settleFriend.name }}</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" id="closeSettleModal" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div *ngIf="settleError" class="alert alert-danger py-2 mb-3" style="border-radius:10px;">{{ settleError }}</div>
+
+        <!-- Balance Summary -->
+        <div class="text-center p-4 mb-4 rounded-3"
+             style="background:rgba(0,255,204,0.05);border:1px solid rgba(0,255,204,0.15);">
+          <p class="text-secondary mb-1">
+            {{ getBalance(settleFriend._id) < 0 ? 'You owe ' + settleFriend.name : settleFriend.name + ' owes you' }}
+          </p>
+          <h3 class="fw-bold mb-0" [style.color]="getBalance(settleFriend._id) < 0 ? '#ff6b6b' : '#00ffcc'">
+            ₹{{ abs(getBalance(settleFriend._id)) | number:'1.2-2' }}
+          </h3>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label text-secondary small">Amount settling</label>
+          <div class="d-flex align-items-center gap-2 custom-input-group px-3">
+            <span class="fw-bold fs-5" style="color:#00ffcc;">₹</span>
+            <input type="number" class="form-control glass-input" placeholder="0.00"
+                   [(ngModel)]="settleAmount" min="0.01" step="0.01"
+                   style="border:none !important;background:transparent !important;">
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label text-secondary small">Note <span class="text-muted">(optional)</span></label>
+          <input type="text" class="form-control glass-input" placeholder="e.g., Paid via UPI"
+                 [(ngModel)]="settleNote">
+        </div>
+
+        <button class="btn btn-gradient w-100 py-3 rounded-pill fw-bold"
+                (click)="settleUp()" [disabled]="isSettling || !settleAmount">
+          <span *ngIf="isSettling" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isSettling ? 'Recording...' : '✓ Record Settlement' }}
+        </button>
       </div>
     </div>
   </div>

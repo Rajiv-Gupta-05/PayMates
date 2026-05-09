@@ -55,3 +55,102 @@ body {
   box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4);
   color: #0B0F19;
 }
+
+/* Glass Input Field */
+.glass-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+  &::placeholder { color: #6c757d; }
+  &:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(0, 255, 204, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.1) !important;
+    color: #fff !important;
+    outline: none;
+  }
+  option { background: #1a1f2e; color: #fff; }
+}
+
+/* Custom Input Group with icon */
+.custom-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  &:focus-within {
+    border-color: rgba(0, 255, 204, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.1);
+  }
+  i { flex-shrink: 0; }
+  .form-control, .form-select {
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    padding-left: 12px;
+    &::placeholder { color: #6c757d; }
+    &:focus { box-shadow: none !important; }
+    option { background: #1a1f2e; }
+  }
+}
+
+/* Glass Modal */
+.glass-modal {
+  background: rgba(15, 20, 35, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 20px !important;
+  color: #fff;
+  .modal-accent-bar {
+    height: 4px;
+    background: linear-gradient(90deg, #00ffcc, #007bff);
+    width: 100%;
+  }
+}
+
+/* Glass Dropdown */
+.glass-dropdown-menu {
+  background: rgba(15, 20, 35, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+.glass-dropdown-item {
+  color: #fff !important;
+  transition: all 0.15s ease;
+  &:hover, &.active {
+    background: rgba(0, 255, 204, 0.1) !important;
+    color: #00ffcc !important;
+  }
+}
+
+/* Transition hover for cards */
+.transition-hover {
+  transition: background 0.2s ease, transform 0.2s ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.03) !important;
+  }
+}
+
+/* Mobile active nav link */
+.mobile-active {
+  color: #00ffcc !important;
+}
+
+/* Amount input special style */
+.amount-input {
+  font-size: 3rem !important;
+  border: none !important;
+  background: transparent !important;
+  text-align: center;
+  width: 180px;
+  &:focus { box-shadow: none !important; outline: none; }
+  &::placeholder { color: rgba(0, 255, 204, 0.3); }
+}

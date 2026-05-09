@@ -1,11 +1,15 @@
 <div class="app-layout d-flex h-100 min-vh-100">
-  
+
+<!-- Global top-bar loader — async pipe avoids NG0100 -->
+<div class="global-loader-bar" [class.active]="isLoading$ | async"></div>
+
+  <!-- Desktop Sidebar -->
   <aside class="glass-sidebar d-none d-md-flex flex-column p-4">
     <div class="brand mb-5">
       <h3 class="fw-bold m-0">PayMates<span style="color: #00ffcc;">.</span></h3>
     </div>
-    
-    <nav class="nav flex-column gap-3 flex-grow-1">
+
+    <nav class="nav flex-column gap-2 flex-grow-1">
       <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-link text-light rounded-3 d-flex align-items-center gap-3 py-3 px-3">
         <i class="bi bi-grid-1x2-fill"></i> Dashboard
       </a>
@@ -16,23 +20,35 @@
         <i class="bi bi-people-fill"></i> Friends
       </a>
       <a routerLink="/activity" routerLinkActive="active-link" class="nav-link text-light rounded-3 d-flex align-items-center gap-3 py-3 px-3">
-        <i class="bi bi-bell-fill"></i> Activity
+        <i class="bi bi-clock-history"></i> Activity
       </a>
     </nav>
 
-    <div class="user-profile d-flex align-items-center gap-3 mt-auto glass-card p-3">
-      <div class="avatar rounded-circle bg-gradient" style="width: 40px; height: 40px; background: linear-gradient(135deg, #00ffcc, #007bff);"></div>
-      <div class="user-info overflow-hidden">
-        <h6 class="m-0 text-truncate">John Doe</h6>
-        <small class="text-secondary">Logout</small>
+    <div class="user-profile d-flex align-items-center gap-3 mt-auto glass-card p-3" style="cursor:pointer;" (click)="logout()" title="Click to logout">
+      <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
+           style="width:40px;height:40px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:14px;">
+        {{ getInitials() }}
       </div>
+      <div class="user-info overflow-hidden flex-grow-1">
+        <h6 class="m-0 text-truncate">{{ currentUser?.name || 'User' }}</h6>
+        <small class="text-secondary">Click to logout</small>
+      </div>
+      <i class="bi bi-box-arrow-right text-secondary"></i>
     </div>
   </aside>
 
+  <!-- Main Content -->
   <main class="flex-grow-1 position-relative overflow-y-auto pb-5 pb-md-0">
+    <!-- Mobile Header -->
     <header class="d-md-none d-flex justify-content-between align-items-center p-3 glass-header sticky-top">
       <h4 class="fw-bold m-0">PayMates<span style="color: #00ffcc;">.</span></h4>
-      <div class="avatar rounded-circle" style="width: 35px; height: 35px; background: linear-gradient(135deg, #00ffcc, #007bff);"></div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark"
+             style="width:35px;height:35px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:12px;cursor:pointer;"
+             (click)="logout()">
+          {{ getInitials() }}
+        </div>
+      </div>
     </header>
 
     <div class="container-fluid p-3 p-md-5">
@@ -40,31 +56,33 @@
     </div>
   </main>
 
+  <!-- Mobile Bottom Nav -->
   <nav class="mobile-nav d-md-none glass-bottom-nav position-fixed bottom-0 w-100 d-flex justify-content-around align-items-center p-2 z-3">
-    <a routerLink="/dashboard" routerLinkActive="text-info" class="nav-link text-secondary text-center p-2 d-flex flex-column align-items-center">
+    <a routerLink="/dashboard" routerLinkActive="mobile-active" class="nav-link text-secondary text-center p-2 d-flex flex-column align-items-center">
       <i class="bi bi-grid-1x2-fill fs-4"></i>
-      <small class="mt-1">Dashboard</small>
+      <small class="mt-1">Home</small>
     </a>
-    <a routerLink="/groups" routerLinkActive="text-info" class="nav-link text-secondary text-center p-2 d-flex flex-column align-items-center">
+    <a routerLink="/groups" routerLinkActive="mobile-active" class="nav-link text-secondary text-center p-2 d-flex flex-column align-items-center">
       <i class="bi bi-collection-fill fs-4"></i>
       <small class="mt-1">Groups</small>
     </a>
-    
-    <div class="fab-container position-relative" style="top: -20px;">
-      <button class="btn btn-gradient rounded-circle shadow-lg d-flex justify-content-center align-items-center" style="width: 60px; height: 60px;" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+
+    <div class="fab-container position-relative" style="top:-20px;">
+      <button class="btn btn-gradient rounded-circle shadow-lg d-flex justify-content-center align-items-center"
+              style="width:60px;height:60px;" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
         <i class="bi bi-plus-lg fs-2 text-dark"></i>
       </button>
     </div>
 
-    <a routerLink="/friends" routerLinkActive="text-info" class="nav-link text-secondary text-center p-2 d-flex flex-column align-items-center">
+    <a routerLink="/friends" routerLinkActive="mobile-active" class="nav-link text-secondary text-center p-2 d-flex flex-column align-items-center">
       <i class="bi bi-people-fill fs-4"></i>
       <small class="mt-1">Friends</small>
     </a>
-    <a routerLink="/activity" routerLinkActive="text-info" class="nav-link text-secondary text-center p-2 d-flex flex-column align-items-center">
-      <i class="bi bi-bell-fill fs-4"></i>
+    <a routerLink="/activity" routerLinkActive="mobile-active" class="nav-link text-secondary text-center p-2 d-flex flex-column align-items-center">
+      <i class="bi bi-clock-history fs-4"></i>
       <small class="mt-1">Activity</small>
     </a>
   </nav>
-
 </div>
+
 <app-add-expense></app-add-expense>

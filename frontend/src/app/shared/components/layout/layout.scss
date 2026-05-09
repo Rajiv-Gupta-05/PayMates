@@ -29,5 +29,31 @@
   background: rgba(11, 15, 25, 0.9);
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: env(safe-area-inset-bottom); /* For iOS rounded corners */
+  padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Global top loading bar */
+.global-loader-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, #00ffcc, #007bff, #00ffcc);
+  background-size: 200% 100%;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+
+  &.active {
+    opacity: 1;
+    width: 100%;
+    animation: loadSlide 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes loadSlide {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
