@@ -5,6 +5,7 @@ const {
   getUserExpenses,
   getGroupExpenses,
   getExpenseById,
+  updateExpense,
   deleteExpense,
 } = require('../controllers/expenseController');
 const { protect } = require('../middlewares/authMiddleware');
@@ -14,6 +15,7 @@ router.get('/group/:groupId', protect, getGroupExpenses); // Get expenses for a 
 router.get('/', protect, getUserExpenses);                // Get all user's expenses
 router.get('/:id', protect, getExpenseById);             // Get single expense
 router.post('/', protect, createExpense);                 // Create expense
+router.put('/:id', protect, updateExpense);               // Update expense
 router.delete('/:id', protect, deleteExpense);           // Delete expense
 
 module.exports = router;

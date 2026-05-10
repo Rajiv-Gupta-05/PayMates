@@ -28,6 +28,7 @@ export class AppStateService {
   private _groups$          = new BehaviorSubject<any[]>([]);
   private _expenses$        = new BehaviorSubject<any[]>([]);
   private _settlements$     = new BehaviorSubject<any[]>([]);
+  private _editingExpense$  = new BehaviorSubject<any>(null);
 
   // --- Public Observables (delay(0) defers emissions past current CD cycle → no NG0100) ---
   readonly isLoading$      = this._isLoading$.asObservable().pipe(delay(0));
@@ -38,6 +39,7 @@ export class AppStateService {
   readonly groups$         = this._groups$.asObservable().pipe(delay(0));
   readonly expenses$       = this._expenses$.asObservable().pipe(delay(0));
   readonly settlements$    = this._settlements$.asObservable().pipe(delay(0));
+  readonly editingExpense$ = this._editingExpense$.asObservable().pipe(delay(0));
 
   constructor(
     private dashboardService: DashboardService,
@@ -123,6 +125,10 @@ export class AppStateService {
   get currentFriendBalances(){ return this._friendBalances$.value; }
   get currentExpenses()      { return this._expenses$.value; }
   get currentSettlements()   { return this._settlements$.value; }
+
+  setEditingExpense(expense: any): void {
+    this._editingExpense$.next(expense);
+  }
 
   /** Reset everything on logout. */
   reset(): void {

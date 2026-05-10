@@ -6,7 +6,7 @@ const Group = require('../models/Group');
 // @access  Private
 exports.createExpense = async (req, res) => {
   try {
-    const { description, totalAmount, groupId, splits } = req.body;
+    const { description, totalAmount, groupId, splits, category } = req.body;
 
     // --- Input validation ---
     if (!description || description.trim().length === 0) {
@@ -47,7 +47,7 @@ exports.createExpense = async (req, res) => {
       return res.status(400).json({ message: `amountOwed across all splits must equal totalAmount (got ${calculatedTotalOwed.toFixed(2)}, expected ${totalAmount})` });
     }
 
-    // ✅ FIX: If groupId provided, validate user is a member of that group
+    // If groupId provided, validate user is a member of that group
     if (groupId) {
       const group = await Group.findById(groupId);
       if (!group) {
@@ -63,6 +63,7 @@ exports.createExpense = async (req, res) => {
       description: description.trim(),
       totalAmount,
       groupId: groupId || null,
+      category: category || 'OTHER',
       createdBy: req.user._id,
       splits,
     });
@@ -73,6 +74,71 @@ exports.createExpense = async (req, res) => {
       .populate('groupId', 'name');
 
     res.status(201).json(populated);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+// @desc    Update an existing expense
+// @route   PUT /api/expenses/:id
+// @access  Private
+exports.updateExpense = async (req, res) => {
+  try {
+    const { description, totalAmount, groupId, splits, category } = req.body;
+    const expenseId = req.params.id;
+
+    let expense = await Expense.findById(expenseId);
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+
+    // Ensure the user is either the creator or involved in the splits
+    const isCreator = expense.createdBy.toString() === req.user._id.toString();
+    const isInvolved = expense.splits.some(s => s.user.toString() === req.user._id.toString());
+    
+    if (!isCreator && !isInvolved) {
+      return res.status(403).json({ message: 'Not authorized to edit this expense' });
+    }
+
+    // --- Input validation ---
+    if (!description || description.trim().length === 0) {
+      return res.status(400).json({ message: 'Description is required' });
+    }
+    if (!totalAmount || totalAmount <= 0) {
+      return res.status(400).json({ message: 'Total amount must be a positive number' });
+    }
+    if (!splits || !Array.isArray(splits) || splits.length === 0) {
+      return res.status(400).json({ message: 'At least one split entry is required' });
+    }
+
+    let calculatedTotalPaid = 0;
+    let calculatedTotalOwed = 0;
+    splits.forEach((split) => {
+      calculatedTotalPaid += split.amountPaid;
+      calculatedTotalOwed += split.amountOwed;
+    });
+
+    if (Math.abs(calculatedTotalPaid - totalAmount) > 0.01) {
+      return res.status(400).json({ message: 'amountPaid across all splits must equal totalAmount' });
+    }
+    if (Math.abs(calculatedTotalOwed - totalAmount) > 0.01) {
+      return res.status(400).json({ message: 'amountOwed across all splits must equal totalAmount' });
+    }
+
+    expense.description = description.trim();
+    expense.totalAmount = totalAmount;
+    expense.groupId = groupId || null;
+    expense.category = category || expense.category;
+    expense.splits = splits;
+
+    await expense.save();
+
+    const populated = await Expense.findById(expense._id)
+      .populate('createdBy', 'name email')
+      .populate('splits.user', 'name email')
+      .populate('groupId', 'name');
+
+    res.json(populated);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }

@@ -5,9 +5,9 @@
 
       <div class="modal-header border-0 pb-0 pt-4 px-4">
         <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="addExpenseModalLabel">
-          <i class="bi bi-receipt-cutoff text-light"></i> New Expense
+          <i class="bi bi-receipt-cutoff text-light"></i> {{ isEditMode ? 'Edit Expense' : 'New Expense' }}
         </h5>
-        <button type="button" class="btn-close btn-close-white" id="closeAddExpenseModal" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" id="closeAddExpenseModal" data-bs-dismiss="modal" (click)="closeModal()"></button>
       </div>
 
       <div class="modal-body p-4">
@@ -144,7 +144,7 @@
           <button type="button" class="btn btn-gradient w-100 py-3 rounded-pill fs-6 fw-bold"
                   (click)="submit()" [disabled]="expenseForm.invalid || isSubmitting">
             <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
-            {{ isSubmitting ? 'Saving...' : 'Save Expense' }}
+            {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Save Expense') }}
           </button>
 
         </form>

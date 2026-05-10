@@ -25,6 +25,8 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
+      countryCode: ['+91', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
@@ -35,6 +37,7 @@ export class RegisterComponent {
       const payload = {
         name: this.registerForm.value.fullName,
         email: this.registerForm.value.email,
+        phone: `${this.registerForm.value.countryCode} ${this.registerForm.value.phone}`,
         password: this.registerForm.value.password
       };
 

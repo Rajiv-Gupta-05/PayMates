@@ -73,7 +73,12 @@
         </small>
 
         <div class="d-flex align-items-center gap-2 mt-1">
-          <small class="text-muted">{{ item.createdAt | date:'d MMM y · h:mm a' }}</small>
+          <small class="text-light">{{ (item.updatedAt || item.createdAt) | date:'d MMM y · h:mm a' }}</small>
+          <span *ngIf="isEdited(item)" 
+                class="badge rounded-pill d-inline-flex align-items-center tag-edited" 
+                style="background:rgba(255,255,255,0.06);color:#adb5bd;font-size:9px;letter-spacing:0.5px;padding:3px 7px;border:1px solid rgba(255,255,255,0.1);font-weight:600;">
+            <i class="bi bi-pencil-fill me-1" style="font-size:8px;opacity:0.7;"></i>Edited
+          </span>
           <span *ngIf="item.kind==='expense' && item.category"
                 class="badge rounded-pill px-2"
                 style="background:rgba(255,255,255,0.06);color:#adb5bd;font-size:10px;">
@@ -207,14 +212,22 @@
         </ng-container>
 
         <!-- Actions -->
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center mt-3">
           <small class="text-secondary">Added by {{ selectedExpense.createdBy?.name }}</small>
-          <button *ngIf="selectedExpense.createdBy?._id?.toString()===currentUser?._id?.toString()"
-                  class="btn btn-sm rounded-pill px-4"
-                  style="background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);color:#ff6b6b;"
-                  (click)="deleteExpense(selectedExpense._id)">
-            <i class="bi bi-trash me-2"></i>Delete
-          </button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm rounded-pill px-4"
+                    style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#fff;"
+                    (click)="editExpense(selectedExpense)"
+                    data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+              <i class="bi bi-pencil-square me-2"></i>Edit
+            </button>
+            <button *ngIf="selectedExpense.createdBy?._id?.toString()===currentUser?._id?.toString()"
+                    class="btn btn-sm rounded-pill px-4"
+                    style="background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);color:#ff6b6b;"
+                    (click)="deleteExpense(selectedExpense._id)">
+              <i class="bi bi-trash me-2"></i>Delete
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -52,6 +52,9 @@ export class AddExpense implements OnInit, OnDestroy {
     });
   }
 
+  isEditMode = false;
+  editExpenseId: string | null = null;
+
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.paidBy = this.currentUser;
@@ -60,13 +63,52 @@ export class AddExpense implements OnInit, OnDestroy {
     this.subs.add(this.appState.groups$.subscribe(g => { this.groups = g; }));
     this.subs.add(this.appState.friends$.subscribe(f => {
       this.friends = f;
-      if (!this.selectedGroup) {
+      if (!this.selectedGroup && !this.isEditMode) {
         this.participants = [this.currentUser];
+      }
+    }));
+
+    this.subs.add(this.appState.editingExpense$.subscribe(exp => {
+      if (exp) {
+        this.isEditMode = true;
+        this.editExpenseId = exp._id;
+        this.expenseForm.patchValue({
+          description: exp.description,
+          totalAmount: exp.totalAmount,
+          category: exp.category || 'OTHER',
+          groupId: exp.groupId?._id || exp.groupId || ''
+        });
+        
+        if (exp.groupId) {
+          const gId = exp.groupId._id || exp.groupId;
+          this.selectedGroup = this.groups.find(g => g._id === gId) || exp.groupId;
+        } else {
+          this.selectedGroup = null;
+        }
+
+        this.participants = exp.splits.map((s: any) => s.user);
+        this.customSplits = {};
+        exp.splits.forEach((s: any) => {
+          this.customSplits[s.user._id] = s.amountOwed;
+          if (s.amountPaid > 0) this.paidBy = s.user;
+        });
+      } else {
+        this.isEditMode = false;
+        this.editExpenseId = null;
+        this.expenseForm.reset({ category: 'OTHER', groupId: '' });
+        this.selectedGroup = null;
+        this.participants = [this.currentUser];
+        this.paidBy = this.currentUser;
+        this.customSplits = {};
       }
     }));
   }
 
   ngOnDestroy(): void { this.subs.unsubscribe(); }
+
+  closeModal(): void {
+    this.appState.setEditingExpense(null);
+  }
 
   onGroupChange(): void {
     const groupId = this.expenseForm.value.groupId;
@@ -191,20 +233,25 @@ export class AddExpense implements OnInit, OnDestroy {
       splits
     };
 
-    this.expenseService.createExpense(payload).subscribe({
+    const request = this.isEditMode && this.editExpenseId
+      ? this.expenseService.updateExpense(this.editExpenseId, payload)
+      : this.expenseService.createExpense(payload);
+
+    request.subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.successMessage = 'Expense added! ✅';
+        this.successMessage = this.isEditMode ? 'Expense updated! ✅' : 'Expense added! ✅';
         this.resetForm();
         this.appState.refreshFinancials();
         setTimeout(() => {
           this.successMessage = '';
+          this.appState.setEditingExpense(null);
           document.getElementById('closeAddExpenseModal')?.click();
         }, 1200);
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.errorMessage = err.error?.message || 'Failed to create expense.';
+        this.errorMessage = err.error?.message || (this.isEditMode ? 'Failed to update expense.' : 'Failed to create expense.');
       }
     });
   }

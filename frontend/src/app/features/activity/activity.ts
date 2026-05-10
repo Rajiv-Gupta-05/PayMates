@@ -37,7 +37,7 @@ export class Activity implements OnInit, OnDestroy {
           const exp = expenses.map(e => ({ ...e, kind: 'expense' }));
           const set = settlements.map(s => ({ ...s, kind: 'settlement' }));
           this.timeline = [...exp, ...set].sort(
-            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            (a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
           );
           this.cdr.detectChanges();
         }
@@ -113,6 +113,17 @@ export class Activity implements OnInit, OnDestroy {
       },
       error: (err) => alert(err.error?.message || 'Could not delete expense.')
     });
+  }
+
+  editExpense(expense: any): void {
+    document.getElementById('closeExpenseDetailModal')?.click();
+    this.appState.setEditingExpense(expense);
+  }
+
+  isEdited(item: any): boolean {
+    if (!item.updatedAt || !item.createdAt) return false;
+    // If updatedAt is more than 1 second after createdAt, consider it edited
+    return new Date(item.updatedAt).getTime() > new Date(item.createdAt).getTime() + 1000;
   }
 
   getInitials(name: string): string {

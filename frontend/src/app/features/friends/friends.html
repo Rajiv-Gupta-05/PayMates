@@ -45,7 +45,7 @@
       <div *ngIf="removingFriendId !== friend._id"
            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center p-3 p-md-4 transition-hover gap-3 gap-md-0"
            [class.border-bottom]="!last" style="border-color:rgba(255,255,255,0.08) !important;">
-        <div class="d-flex align-items-center gap-3 w-100 w-md-auto">
+        <div class="d-flex align-items-center gap-3 w-100" style="max-width:100%;">
           <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
                style="width:45px;height:45px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:14px;">
             {{ getInitials(friend.name) }}
@@ -56,8 +56,8 @@
           </div>
         </div>
         
-        <div class="d-flex w-100 w-md-auto justify-content-between justify-content-md-end align-items-center gap-3 mt-1 mt-md-0">
-          <div class="text-start text-md-end">
+        <div class="d-flex align-items-center justify-content-end gap-3 mt-3 mt-md-0 align-self-end align-self-md-center w-100" style="max-width:max-content;">
+          <div class="text-end">
             <p class="text-secondary small m-0">
               {{ getBalance(friend._id) > 0 ? 'Owes you' : getBalance(friend._id) < 0 ? 'You owe' : 'Settled up' }}
             </p>
@@ -85,20 +85,20 @@
 
       <!-- Inline Confirm Remove Row -->
       <div *ngIf="removingFriendId === friend._id"
-           class="p-3 p-md-4 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3"
+           class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center p-3 p-md-4 transition-hover gap-3 gap-md-0"
            [class.border-bottom]="!last"
            style="border-color:rgba(255,255,255,0.08) !important;background:rgba(255,107,107,0.07);">
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 w-100" style="max-width:100%;">
           <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
                style="width:45px;height:45px;background:linear-gradient(135deg,#ff9a9e,#fecfef);font-size:14px;">
             {{ getInitials(friend.name) }}
           </div>
-          <div>
-            <p class="m-0 fw-semibold text-light">Remove <span style="color:#ff6b6b;">{{ friend.name }}</span>?</p>
-            <small class="text-secondary d-none d-md-block">This will remove the friendship for both users.</small>
+          <div class="overflow-hidden">
+            <p class="m-0 fw-semibold text-light text-truncate">Remove <span style="color:#ff6b6b;">{{ friend.name }}</span>?</p>
+            <small class="text-secondary text-truncate d-block">This will remove the friendship for both users.</small>
           </div>
         </div>
-        <div class="d-flex gap-2 flex-shrink-0 w-100 w-md-auto justify-content-end">
+        <div class="d-flex justify-content-end align-items-center gap-2 mt-3 mt-md-0 align-self-end align-self-md-center w-100" style="max-width:max-content;">
           <button class="btn btn-sm rounded-pill px-3"
                   style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#adb5bd;font-size:12px;"
                   (click)="cancelRemove()" [disabled]="isRemoving">Cancel</button>

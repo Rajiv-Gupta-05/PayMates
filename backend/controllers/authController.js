@@ -14,11 +14,11 @@ const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 // @access  Public
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
     // --- Input validation ---
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email, and password are required' });
+    if (!name || !email || !password || !phone) {
+      return res.status(400).json({ message: 'Name, email, password, and phone number are required' });
     }
     if (!isValidEmail(email.trim())) {
       return res.status(400).json({ message: 'Please provide a valid email address' });
@@ -41,12 +41,15 @@ exports.registerUser = async (req, res) => {
       name: name.trim(),
       email: email.trim().toLowerCase(),
       password,
+      phone: phone.trim()
     });
 
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      avatar: user.avatar,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -74,6 +77,8 @@ exports.loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        avatar: user.avatar,
         token: generateToken(user._id),
       });
     } else {

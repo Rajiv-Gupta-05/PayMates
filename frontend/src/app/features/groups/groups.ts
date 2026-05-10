@@ -169,9 +169,12 @@ export class Groups implements OnInit, OnDestroy {
       expenses: this.expenseService.getGroupExpenses(group._id)
     }).subscribe({
       next: ({ balance, expenses }) => {
-        this.groupDetailCache.set(group._id, { balance, expenses });
+        const sortedExpenses = expenses.sort(
+          (a: any, b: any) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
+        );
+        this.groupDetailCache.set(group._id, { balance, expenses: sortedExpenses });
         this.groupDetail = balance;
-        this.groupExpenses = expenses;
+        this.groupExpenses = sortedExpenses;
         this.isLoadingDetail = false;
         this.cdr.detectChanges();
       },
@@ -205,6 +208,16 @@ export class Groups implements OnInit, OnDestroy {
     const s = this.getMySplit(expense);
     if (!s) return 0;
     return parseFloat((s.amountPaid - s.amountOwed).toFixed(2));
+  }
+
+  editExpense(expense: any): void {
+    document.getElementById('closeGroupDetailModal')?.click();
+    this.appState.setEditingExpense(expense);
+  }
+
+  isEdited(item: any): boolean {
+    if (!item.updatedAt || !item.createdAt) return false;
+    return new Date(item.updatedAt).getTime() > new Date(item.createdAt).getTime() + 1000;
   }
 
   // ── Delete Group ──────────────────────────────────────────────────

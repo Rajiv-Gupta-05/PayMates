@@ -47,6 +47,28 @@
             </div>
           </div>
 
+          <div class="mb-3">
+            <div class="input-group">
+              <div class="form-floating" style="max-width: 110px;">
+                <select class="form-select rounded-start-3 text-center" id="countryCodeInput" formControlName="countryCode" 
+                        style="border-top-right-radius: 0; border-bottom-right-radius: 0; cursor: pointer; padding-top: 0; padding-bottom: 0;">
+                  <option value="+91">🇮🇳 +91</option>
+                  <option value="+977">🇳🇵 +977</option>
+                </select>
+              </div>
+              <div class="form-floating flex-grow-1">
+                <input type="tel" class="form-control rounded-end-3" id="phoneInput" placeholder="9876543210" formControlName="phone"
+                       [class.is-invalid]="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched"
+                       style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 0;">
+                <label for="phoneInput">Mobile Number</label>
+              </div>
+            </div>
+            <div *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched" class="text-danger small mt-1 ps-2">
+              <span *ngIf="registerForm.get('phone')?.errors?.['required']">Mobile number is required.</span>
+              <span *ngIf="registerForm.get('phone')?.errors?.['pattern']">Please enter a valid 10-digit mobile number.</span>
+            </div>
+          </div>
+
           <div class="mb-4">
             <div class="form-floating">
               <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password"
