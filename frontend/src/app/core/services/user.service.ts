@@ -12,6 +12,10 @@ export class UserService {
     return this.http.get(`${this.api}/me`);
   }
 
+  updateProfile(data: any): Observable<any> {
+    return this.http.put(`${this.api}/me`, data);
+  }
+
   searchUsers(query: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.api}?search=${query}`);
   }

@@ -1,5 +1,5 @@
 // src/app/features/auth/register/register.component.ts
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -19,7 +19,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService, // Inject service
-    private router: Router          // Inject router
+    private router: Router,          // Inject router
+    private cdr: ChangeDetectorRef
   ) {
     this.registerForm = this.fb.group({
       fullName: ['', Validators.required],
@@ -45,6 +46,7 @@ export class RegisterComponent {
         error: (err) => {
           console.error('Registration failed', err);
           this.errorMessage = err.error.message || 'An error occurred during registration.';
+          this.cdr.detectChanges(); // Force UI update
         }
       });
     }

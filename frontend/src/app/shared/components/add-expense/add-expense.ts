@@ -218,6 +218,14 @@ export class AddExpense implements OnInit, OnDestroy {
     this.customSplits = {};
   }
 
+  onAmountInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value && input.value.length > 8) {
+      input.value = input.value.slice(0, 8);
+      this.expenseForm.patchValue({ totalAmount: input.value });
+    }
+  }
+
   getInitials(name: string): string {
     return (name || '?').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   }

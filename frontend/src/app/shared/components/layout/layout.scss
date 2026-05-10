@@ -1,5 +1,7 @@
 .glass-sidebar {
   width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
   background: rgba(11, 15, 25, 0.6);
   backdrop-filter: blur(20px);
   border-right: 1px solid rgba(255, 255, 255, 0.05);

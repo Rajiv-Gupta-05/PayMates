@@ -115,7 +115,7 @@ export class Groups implements OnInit, OnDestroy {
 
   // ── Create Group ──────────────────────────────────────────────────
   createGroup(): void {
-    if (this.createForm.invalid) return;
+    if (this.createForm.invalid || this.selectedFriends.length === 0) return;
     this.isCreating = true;
     this.createError = '';
 

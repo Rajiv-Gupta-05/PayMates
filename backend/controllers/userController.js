@@ -11,6 +11,41 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
+// @desc    Update logged-in user's profile
+// @route   PUT /api/users/me
+// @access  Private
+exports.updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.name = req.body.name || user.name;
+    user.phone = req.body.phone || user.phone;
+    if (req.body.avatar !== undefined) {
+      user.avatar = req.body.avatar;
+    }
+
+    // if password was sent, update it
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      avatar: updatedUser.avatar,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
 // @desc    Search for users by name or email (excluding yourself)
 // @route   GET /api/users?search=query
 // @access  Private

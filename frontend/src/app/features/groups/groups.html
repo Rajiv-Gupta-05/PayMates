@@ -123,7 +123,7 @@
         </div>
 
         <button class="btn btn-gradient w-100 py-3 rounded-pill fw-bold"
-                (click)="createGroup()" [disabled]="createForm.invalid || isCreating">
+                (click)="createGroup()" [disabled]="createForm.invalid || isCreating || selectedFriends.length === 0">
           <span *ngIf="isCreating" class="spinner-border spinner-border-sm me-2"></span>
           {{ isCreating ? 'Creating...' : 'Create Group' }}
         </button>

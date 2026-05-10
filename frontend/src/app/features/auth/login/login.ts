@@ -1,5 +1,5 @@
 // src/app/features/auth/login/login.component.ts
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -19,7 +19,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService, // Inject service
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -37,6 +38,7 @@ export class LoginComponent {
         error: (err) => {
           console.error('Login failed', err);
           this.errorMessage = err.error.message || 'Invalid email or password.';
+          this.cdr.detectChanges(); // Force UI update
         }
       });
     }

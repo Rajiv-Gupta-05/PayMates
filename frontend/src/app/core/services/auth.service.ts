@@ -34,9 +34,11 @@ export class AuthService {
     }
   }
 
-  private saveUser(user: any): void {
+  saveUser(user: any): void {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('splitwise_user', JSON.stringify({ _id: user._id, name: user.name, email: user.email }));
+      const existing = this.getCurrentUser() || {};
+      const updated = { ...existing, _id: user._id, name: user.name, email: user.email, phone: user.phone, avatar: user.avatar };
+      localStorage.setItem('splitwise_user', JSON.stringify(updated));
     }
   }
 

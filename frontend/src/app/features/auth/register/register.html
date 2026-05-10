@@ -18,24 +18,48 @@
         <h3 class="mb-1 fw-bold">Create an account</h3>
         <p class="text-secondary mb-4">Join today and start splitting expenses easily.</p>
 
+        <div *ngIf="errorMessage" class="alert alert-danger py-2 mb-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
+        </div>
+
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
           
-          <div class="form-floating mb-3">
-            <input type="text" class="form-control rounded-3" id="nameInput" placeholder="John Doe" formControlName="fullName">
-            <label for="nameInput">Full Name</label>
+          <div class="mb-3">
+            <div class="form-floating">
+              <input type="text" class="form-control rounded-3" id="nameInput" placeholder="John Doe" formControlName="fullName"
+                     [class.is-invalid]="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched">
+              <label for="nameInput">Full Name</label>
+            </div>
+            <div *ngIf="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched" class="text-danger small mt-1 ps-2">
+              <span *ngIf="registerForm.get('fullName')?.errors?.['required']">Full Name is required.</span>
+            </div>
           </div>
 
-          <div class="form-floating mb-3">
-            <input type="email" class="form-control rounded-3" id="emailInput" placeholder="name@example.com" formControlName="email">
-            <label for="emailInput">Email address</label>
+          <div class="mb-3">
+            <div class="form-floating">
+              <input type="email" class="form-control rounded-3" id="emailInput" placeholder="name@example.com" formControlName="email"
+                     [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+              <label for="emailInput">Email address</label>
+            </div>
+            <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="text-danger small mt-1 ps-2">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
+            </div>
           </div>
 
-          <div class="form-floating mb-4">
-            <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password">
-            <label for="passwordInput">Password (min 6 chars)</label>
+          <div class="mb-4">
+            <div class="form-floating">
+              <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password"
+                     [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+              <label for="passwordInput">Password (min 6 chars)</label>
+            </div>
+            <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-danger small mt-1 ps-2">
+              <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters.</span>
+            </div>
           </div>
 
-          <button type="submit" class="btn btn-gradient w-100 py-3 rounded-3" [disabled]="registerForm.invalid">
+          <button type="submit" class="btn btn-gradient w-100 py-3 rounded-3 fw-bold" [disabled]="registerForm.invalid">
             Create Account
           </button>
         </form>

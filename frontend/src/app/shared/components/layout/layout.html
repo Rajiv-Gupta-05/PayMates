@@ -1,4 +1,4 @@
-<div class="app-layout d-flex h-100 min-vh-100">
+<div class="app-layout d-flex vh-100 overflow-hidden">
 
 <!-- Global top-bar loader — async pipe avoids NG0100 -->
 <div class="global-loader-bar" [class.active]="isLoading$ | async"></div>
@@ -24,16 +24,17 @@
       </a>
     </nav>
 
-    <div class="user-profile d-flex align-items-center gap-3 mt-auto glass-card p-3" style="cursor:pointer;" (click)="logout()" title="Click to logout">
+    <div class="user-profile d-flex align-items-center gap-3 mt-auto glass-card p-3" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#profileModal" title="Profile Settings">
       <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
-           style="width:40px;height:40px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:14px;">
-        {{ getInitials() }}
+           style="width:40px;height:40px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:14px;overflow:hidden;">
+        <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
+        <span *ngIf="!currentUser?.avatar">{{ getInitials() }}</span>
       </div>
       <div class="user-info overflow-hidden flex-grow-1">
         <h6 class="m-0 text-truncate">{{ currentUser?.name || 'User' }}</h6>
-        <small class="text-secondary">Click to logout</small>
+        <small class="text-secondary">Profile Settings</small>
       </div>
-      <i class="bi bi-box-arrow-right text-secondary"></i>
+      <i class="bi bi-gear text-secondary"></i>
     </div>
   </aside>
 
@@ -44,9 +45,10 @@
       <h4 class="fw-bold m-0">PayMates<span style="color: #00ffcc;">.</span></h4>
       <div class="d-flex align-items-center gap-3">
         <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark"
-             style="width:35px;height:35px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:12px;cursor:pointer;"
-             (click)="logout()">
-          {{ getInitials() }}
+             style="width:35px;height:35px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:12px;cursor:pointer;overflow:hidden;"
+             data-bs-toggle="modal" data-bs-target="#profileModal">
+          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
+          <span *ngIf="!currentUser?.avatar">{{ getInitials() }}</span>
         </div>
       </div>
     </header>
@@ -86,3 +88,67 @@
 </div>
 
 <app-add-expense></app-add-expense>
+
+<!-- Profile Settings Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-modal border-0">
+      <div class="modal-accent-bar"></div>
+      <div class="modal-header border-0 pb-0 pt-4 px-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+          <i class="bi bi-person-circle text-light"></i> Profile Settings
+        </h5>
+        <button type="button" class="btn-close btn-close-white" id="closeProfileModal" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <div *ngIf="profileSuccessMessage" class="alert py-2 mb-3 text-center"
+             style="background:rgba(0,255,204,0.1);border:1px solid rgba(0,255,204,0.3);color:#00ffcc;">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ profileSuccessMessage }}
+        </div>
+        <div *ngIf="profileErrorMessage" class="alert alert-danger py-2 mb-3">{{ profileErrorMessage }}</div>
+
+        <form [formGroup]="profileForm">
+          <div class="mb-3 text-center">
+            <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark mx-auto mb-2"
+                 style="width:80px;height:80px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:24px;overflow:hidden;">
+              <img *ngIf="profileForm.value.avatar || currentUser?.avatar" [src]="profileForm.value.avatar || currentUser?.avatar" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
+              <span *ngIf="!(profileForm.value.avatar || currentUser?.avatar)">{{ getInitials() }}</span>
+            </div>
+            <label class="form-label text-secondary small">Avatar URL</label>
+            <input type="text" class="form-control glass-input text-center" formControlName="avatar" placeholder="https://example.com/avatar.png">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary small">Name</label>
+            <input type="text" class="form-control glass-input" formControlName="name">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary small">Phone Number</label>
+            <div class="input-group">
+              <span class="input-group-text glass-input" style="border-right: none; color: #adb5bd;">+91</span>
+              <input type="text" class="form-control glass-input" formControlName="phone" placeholder="9876543210" style="border-left: none;">
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="form-label text-secondary small">Email</label>
+            <input type="email" class="form-control glass-input" formControlName="email" readonly style="opacity: 0.7;">
+          </div>
+
+          <div class="d-flex gap-3 mt-4">
+            <button type="button" class="btn btn-outline-danger w-50 py-2 rounded-pill fw-bold" (click)="logout()">
+              <i class="bi bi-box-arrow-right me-2"></i>Logout
+            </button>
+            <button type="button" class="btn btn-gradient w-50 py-2 rounded-pill fw-bold"
+                    (click)="updateProfile()" [disabled]="profileForm.invalid || isUpdatingProfile">
+              <span *ngIf="isUpdatingProfile" class="spinner-border spinner-border-sm me-2"></span>
+              {{ isUpdatingProfile ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

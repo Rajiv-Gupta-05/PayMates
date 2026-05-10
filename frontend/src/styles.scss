@@ -150,7 +150,14 @@ body {
   border: none !important;
   background: transparent !important;
   text-align: center;
-  width: 180px;
+  width: 280px;
   &:focus { box-shadow: none !important; outline: none; }
   &::placeholder { color: rgba(0, 255, 204, 0.3); }
+}
+
+/* Disabled button global styling */
+button:disabled, .btn:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.65 !important;
+  pointer-events: auto !important; /* Bootstrap sets pointer-events: none which disables cursor */
 }

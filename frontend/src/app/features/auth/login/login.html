@@ -31,18 +31,35 @@
           <hr class="flex-grow-1 border-secondary">
         </div>
 
+        <div *ngIf="errorMessage" class="alert alert-danger py-2 mb-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
+        </div>
+
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <div class="form-floating mb-3">
-            <input type="email" class="form-control rounded-3" id="emailInput" placeholder="name@example.com" formControlName="email">
-            <label for="emailInput">Email address</label>
+          <div class="mb-3">
+            <div class="form-floating">
+              <input type="email" class="form-control rounded-3" id="emailInput" placeholder="name@example.com" formControlName="email"
+                     [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+              <label for="emailInput">Email address</label>
+            </div>
+            <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-danger small mt-1 ps-2">
+              <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</span>
+              <span *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
+            </div>
           </div>
 
-          <div class="form-floating mb-4">
-            <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password">
-            <label for="passwordInput">Password</label>
+          <div class="mb-4">
+            <div class="form-floating">
+              <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password"
+                     [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              <label for="passwordInput">Password</label>
+            </div>
+            <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-danger small mt-1 ps-2">
+              <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
+            </div>
           </div>
 
-          <button type="submit" class="btn btn-gradient w-100 py-3 rounded-3" [disabled]="loginForm.invalid">
+          <button type="submit" class="btn btn-gradient w-100 py-3 rounded-3 fw-bold" [disabled]="loginForm.invalid">
             Sign In
           </button>
         </form>

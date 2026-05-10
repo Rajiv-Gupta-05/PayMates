@@ -21,6 +21,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'INR'
   },
+  phone: {
+    type: String,
+    default: ''
+  },
+  avatar: {
+    type: String,
+    default: ''
+  },
   friends: [
     {
       type: mongoose.Schema.Types.ObjectId,
