@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ChangeDetectorRef, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -44,7 +44,10 @@ export class AddExpense implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private expenseService: ExpenseService,
     private appState: AppStateService,
-    private authService: AuthService
+    private authService: AuthService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
+    private el: ElementRef
   ) {
     this.expenseForm = this.fb.group({
       description: ['', Validators.required],
@@ -56,6 +59,15 @@ export class AddExpense implements OnInit, OnDestroy {
 
   isEditMode = false;
   editExpenseId: string | null = null;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    // If the click is outside the dropdown element, close it
+    if (this.isDropdownOpen && !target.closest('.custom-input-group.dropdown')) {
+      this.isDropdownOpen = false;
+    }
+  }
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -104,6 +116,21 @@ export class AddExpense implements OnInit, OnDestroy {
         this.customSplits = {};
       }
     }));
+
+    if (typeof document !== 'undefined') {
+      const modalElement = document.getElementById('addExpenseModal');
+      if (modalElement) {
+        modalElement.addEventListener('hidden.bs.modal', () => {
+          this.ngZone.run(() => {
+            if (!this.isSubmitting) {
+              this.resetForm();
+              this.appState.setEditingExpense(null);
+              this.cdr.detectChanges();
+            }
+          });
+        });
+      }
+    }
   }
 
   ngOnDestroy(): void { this.subs.unsubscribe(); }
@@ -265,6 +292,10 @@ export class AddExpense implements OnInit, OnDestroy {
     this.paidBy = this.currentUser;
     this.splitMode = 'equal';
     this.customSplits = {};
+    this.selectedGroupName = 'No Group (Individual)';
+    this.isDropdownOpen = false;
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
   onAmountInput(event: Event): void {

@@ -71,8 +71,25 @@ export class Groups implements OnInit, OnDestroy {
     this.currentUser = this.authService.getCurrentUser();
     this.subs.add(this.appState.groups$.subscribe(g => {
       this.groups = g;
+      this.fetchBalancesForGroups();
       this.cdr.detectChanges();
     }));
+  }
+
+  fetchBalancesForGroups(): void {
+    for (const group of this.groups) {
+      if (!this.groupDetailCache.has(group._id) || !this.groupDetailCache.get(group._id)?.balance) {
+        this.dashboardService.getGroupBalance(group._id).subscribe({
+          next: (balance) => {
+            const cached = this.groupDetailCache.get(group._id) || { expenses: null };
+            cached.balance = balance;
+            this.groupDetailCache.set(group._id, cached);
+            this.cdr.detectChanges();
+          },
+          error: () => {}
+        });
+      }
+    }
   }
 
   ngOnDestroy(): void { this.subs.unsubscribe(); }
@@ -83,7 +100,8 @@ export class Groups implements OnInit, OnDestroy {
 
   getGroupBalance(groupId: string): number | null {
     if (!this.groupDetailCache.has(groupId)) return null;
-    return this.groupDetailCache.get(groupId)?.balance?.yourBalance ?? 0;
+    const balance = this.groupDetailCache.get(groupId)?.balance?.yourBalance;
+    return balance !== undefined ? balance : null;
   }
 
   // ── Friend Search ─────────────────────────────────────────────────
@@ -150,9 +168,11 @@ export class Groups implements OnInit, OnDestroy {
     this.detailError = '';
     this.selectedExpense = null;
 
-    // Use Map.has() — covers case where yourBalance=0 (falsy)
-    if (this.groupDetailCache.has(group._id)) {
-      const cached = this.groupDetailCache.get(group._id);
+    const cached = this.groupDetailCache.get(group._id);
+    const hasBalance = cached && cached.balance;
+    const hasExpenses = cached && cached.expenses !== null && cached.expenses !== undefined;
+
+    if (hasBalance && hasExpenses) {
       this.groupDetail = cached.balance;
       this.groupExpenses = cached.expenses;
       this.isLoadingDetail = false;
@@ -160,21 +180,27 @@ export class Groups implements OnInit, OnDestroy {
     }
 
     this.isLoadingDetail = true;
-    this.groupDetail = null;
-    this.groupExpenses = [];
+    this.groupDetail = cached?.balance || null;
+    this.groupExpenses = cached?.expenses || [];
 
-    // Fetch balance summary AND expenses in parallel
-    forkJoin({
-      balance: this.dashboardService.getGroupBalance(group._id),
-      expenses: this.expenseService.getGroupExpenses(group._id)
-    }).subscribe({
-      next: ({ balance, expenses }) => {
-        const sortedExpenses = expenses.sort(
-          (a: any, b: any) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
-        );
-        this.groupDetailCache.set(group._id, { balance, expenses: sortedExpenses });
-        this.groupDetail = balance;
-        this.groupExpenses = sortedExpenses;
+    const requests: any = {};
+    if (!hasBalance) requests.balance = this.dashboardService.getGroupBalance(group._id);
+    if (!hasExpenses) requests.expenses = this.expenseService.getGroupExpenses(group._id);
+
+    forkJoin(requests).subscribe({
+      next: (results: any) => {
+        const newBalance = results.balance || this.groupDetail;
+        let newExpenses = results.expenses || this.groupExpenses;
+
+        if (results.expenses) {
+          newExpenses = newExpenses.sort(
+            (a: any, b: any) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
+          );
+        }
+
+        this.groupDetailCache.set(group._id, { balance: newBalance, expenses: newExpenses });
+        this.groupDetail = newBalance;
+        this.groupExpenses = newExpenses;
         this.isLoadingDetail = false;
         this.cdr.detectChanges();
       },

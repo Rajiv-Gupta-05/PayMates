@@ -147,7 +147,10 @@
           </div>
           <div>
             <h5 class="modal-title fw-bold mb-0">{{ selectedGroup.name }}</h5>
-            <small class="text-secondary">{{ selectedGroup.members?.length }} members · {{ selectedGroup.type }}</small>
+            <small class="text-secondary d-block">{{ selectedGroup.members?.length }} members · {{ selectedGroup.type }}</small>
+            <small class="text-secondary d-block" style="font-size: 11px; opacity: 0.8; margin-top: 2px;">
+              Created by <span style="color: #adb5bd;">{{ isCreator(selectedGroup) ? 'You' : selectedGroup.createdBy?.name || 'Unknown' }}</span>
+            </small>
           </div>
         </div>
         <button type="button" class="btn-close btn-close-white" id="closeGroupDetailModal" data-bs-dismiss="modal"></button>

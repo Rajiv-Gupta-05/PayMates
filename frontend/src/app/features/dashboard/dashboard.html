@@ -6,10 +6,22 @@
       <h2 class="fw-bold mb-1">Dashboard</h2>
       <p class="text-secondary m-0">Welcome back, <span style="color:#00ffcc;">{{ currentUser?.name?.split(' ')[0] || 'there' }}</span>. Here's your summary.</p>
     </div>
-    <button class="btn btn-gradient d-none d-md-flex align-items-center gap-2 px-4 py-2 rounded-pill"
-            data-bs-toggle="modal" data-bs-target="#addExpenseModal">
-      <i class="bi bi-plus-lg"></i> Add Expense
-    </button>
+    <div class="d-flex gap-2">
+      <button 
+        class="btn btn-outline-light d-flex align-items-center gap-2 px-4 py-2 rounded-pill settle-btn"
+        style="border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05);"
+        data-bs-toggle="modal" 
+        data-bs-target="#dashboardSettleModal" 
+        (click)="initGlobalSettle()"
+      >
+        <i class="bi bi-cash-stack" style="color:#00ffcc;"></i> 
+        Settle Up
+      </button>
+      <button class="btn btn-gradient d-none d-md-flex align-items-center gap-2 px-4 py-2 rounded-pill"
+              data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+        <i class="bi bi-plus-lg"></i> Add Expense
+      </button>
+    </div>
   </div>
 
   <!-- Total Balance Hero Card -->
@@ -64,17 +76,17 @@
              class="d-flex justify-content-between align-items-center p-3 transition-hover"
              [class.border-bottom]="!last"
              style="border-color: rgba(255,255,255,0.08) !important;">
-          <div class="d-flex align-items-center gap-3">
+          <div class="d-flex align-items-center gap-3 overflow-hidden flex-grow-1">
             <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
                  style="width:40px;height:40px;background:linear-gradient(135deg,#ff9a9e,#fecfef);font-size:13px;">
               {{ getInitials(item.friend.name) }}
             </div>
-            <div>
-              <h6 class="m-0">{{ item.friend.name }}</h6>
-              <small class="text-secondary">{{ item.friend.email }}</small>
+            <div class="overflow-hidden">
+              <h6 class="m-0 text-truncate">{{ item.friend.name }}</h6>
+              <small class="text-secondary text-truncate d-block">{{ item.friend.email }}</small>
             </div>
           </div>
-          <h6 class="m-0 text-danger fw-bold">-₹{{ abs(item.balance) | number:'1.2-2' }}</h6>
+          <h6 class="m-0 text-danger fw-bold text-nowrap flex-shrink-0 ms-3">-₹{{ abs(item.balance) | number:'1.2-2' }}</h6>
         </div>
       </div>
     </div>
@@ -90,23 +102,134 @@
           Nobody owes you yet.
         </div>
         <div *ngFor="let item of owedList; let last = last"
-             class="d-flex justify-content-between align-items-center p-3"
+             class="d-flex justify-content-between align-items-center p-3 transition-hover"
              [class.border-bottom]="!last"
              style="border-color: rgba(255,255,255,0.08) !important;">
-          <div class="d-flex align-items-center gap-3">
+          <div class="d-flex align-items-center gap-3 overflow-hidden flex-grow-1">
             <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
                  style="width:40px;height:40px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:13px;">
               {{ getInitials(item.friend.name) }}
             </div>
-            <div>
-              <h6 class="m-0">{{ item.friend.name }}</h6>
-              <small class="text-secondary">{{ item.friend.email }}</small>
+            <div class="overflow-hidden">
+              <h6 class="m-0 text-truncate">{{ item.friend.name }}</h6>
+              <small class="text-secondary text-truncate d-block">{{ item.friend.email }}</small>
             </div>
           </div>
-          <h6 class="m-0 fw-bold" style="color:#00ffcc;">+₹{{ item.balance | number:'1.2-2' }}</h6>
+          <h6 class="m-0 fw-bold text-nowrap flex-shrink-0 ms-3" style="color:#00ffcc;">+₹{{ item.balance | number:'1.2-2' }}</h6>
         </div>
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ═══ Settle Up Modal ═══════════════════════════════════════════════ -->
+<div class="modal fade" id="dashboardSettleModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-modal border-0">
+      <div class="modal-accent-bar"></div>
+      <div class="modal-header border-0 pt-4 px-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
+               style="width:42px;height:42px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:16px;">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Settle Up</h5>
+            <small class="text-secondary">Record a payment to clear balances</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" id="closeDashboardSettleModal" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div *ngIf="settleError" class="alert alert-danger py-2 mb-3" style="border-radius:10px;">{{ settleError }}</div>
+
+        <div class="mb-4">
+          <label class="form-label text-secondary small">Select a person</label>
+          <div class="custom-input-group settle-dropdown dropdown position-relative">
+            <i class="bi bi-person text-secondary ps-4 z-1 position-absolute" style="top: 50%; transform: translateY(-50%);"></i>
+            
+            <button class="btn glass-input w-100 text-start d-flex justify-content-between align-items-center py-3" 
+                    style="padding-left: 3rem;" 
+                    type="button" 
+                    (click)="isDropdownOpen = !isDropdownOpen"> 
+              <span [class.text-light]="settleFriend" [class.text-secondary]="!settleFriend">
+                {{ settleFriend ? settleFriend.name : 'Choose someone...' }}
+              </span>
+              <i class="bi bi-chevron-down text-secondary transition-all" [style.transform]="isDropdownOpen ? 'rotate(180deg)' : 'rotate(0)'"></i> 
+            </button>
+
+            <ul class="dropdown-menu glass-dropdown-menu w-100 mt-2 p-2 shadow-lg border-0" 
+                [class.show]="isDropdownOpen" 
+                style="position: absolute; z-index: 1050; max-height: 280px; overflow-y: auto; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08) !important;">
+              
+              <li *ngIf="friendBalances.length === 0" class="p-4 text-center text-secondary small">
+                <i class="bi bi-check-circle fs-4 d-block mb-2 text-success"></i>
+                No unsettled balances found!
+              </li>
+              
+              <li *ngFor="let f of friendBalances">
+                <button class="dropdown-item glass-dropdown-item rounded-3 d-flex align-items-center justify-content-between py-2 mb-1" 
+                        type="button"
+                        (click)="selectFriend(f.friend)"
+                        [class.active]="settleFriend?._id === f.friend._id">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="avatar rounded-circle d-flex justify-content-center align-items-center shadow-sm" 
+                        style="width: 32px; height: 32px; background: linear-gradient(135deg, #00ffcc 0%, #0099ff 100%); color: #000; font-weight: bold; font-size: 12px;">
+                      {{ getInitials(f.friend.name) }}
+                    </div>
+                    <div>
+                      <h6 class="m-0 text-light" style="font-size: 14px;">{{ f.friend.name }}</h6>
+                      <small class="text-secondary d-block" style="font-size: 11px;">{{ f.friend.email }}</small>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <small class="d-block" style="font-size: 10px;" [style.color]="f.balance < 0 ? '#ff6b6b' : '#00ffcc'">
+                      {{ f.balance < 0 ? 'You owe' : 'Owes you' }}
+                    </small>
+                    <span class="fw-bold" style="font-size: 13px;" [style.color]="f.balance < 0 ? '#ff6b6b' : '#00ffcc'">
+                      ₹{{ abs(f.balance) | number:'1.2-2' }}
+                    </span>
+                  </div>
+                </button>
+              </li>
+              
+            </ul>
+          </div>
+        </div>
+
+        <div *ngIf="settleFriend" class="text-center p-3 mb-4 rounded-3"
+             style="background:rgba(0,255,204,0.05);border:1px solid rgba(0,255,204,0.15);">
+          <p class="text-secondary mb-1">
+            {{ getBalance(settleFriend._id) < 0 ? 'You owe ' + settleFriend.name : settleFriend.name + ' owes you' }}
+          </p>
+          <h3 class="fw-bold mb-0" [style.color]="getBalance(settleFriend._id) < 0 ? '#ff6b6b' : '#00ffcc'">
+            ₹{{ abs(getBalance(settleFriend._id)) | number:'1.2-2' }}
+          </h3>
+        </div>
+
+        <div class="mb-3" [class.opacity-50]="!settleFriend">
+          <label class="form-label text-secondary small">Amount settling</label>
+          <div class="d-flex align-items-center gap-2 custom-input-group px-3 py-2">
+            <span class="fw-bold fs-4" style="color:#00ffcc;">₹</span>
+            <input type="number" class="form-control glass-input fs-5" placeholder="0.00"
+                   [(ngModel)]="settleAmount" min="0.01" step="0.01"
+                   [disabled]="!settleFriend"
+                   style="border:none !important;background:transparent !important;font-weight:600;">
+          </div>
+        </div>
+        <div class="mb-4" [class.opacity-50]="!settleFriend">
+          <label class="form-label text-secondary small">Note <span class="text-muted">(optional)</span></label>
+          <input type="text" class="form-control glass-input" placeholder="e.g., Paid via UPI"
+                 [(ngModel)]="settleNote" [disabled]="!settleFriend">
+        </div>
+
+        <button class="btn btn-gradient w-100 py-3 rounded-pill fw-bold"
+                (click)="settleUp()" [disabled]="isSettling || !settleAmount || !settleFriend">
+          <span *ngIf="isSettling" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isSettling ? 'Recording...' : '✓ Record Settlement' }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>
