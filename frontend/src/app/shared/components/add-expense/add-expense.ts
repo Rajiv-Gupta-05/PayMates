@@ -30,6 +30,8 @@ export class AddExpense implements OnInit, OnDestroy {
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
+  selectedGroupName: string = 'No Group (Individual)';
+  isDropdownOpen = false;
 
   readonly CATEGORIES = ['FOOD','TRANSPORT','ACCOMMODATION','UTILITIES','ENTERTAINMENT','SHOPPING','OTHER'];
   readonly CAT_ICONS: { [k: string]: string } = {
@@ -275,5 +277,12 @@ export class AddExpense implements OnInit, OnDestroy {
 
   getInitials(name: string): string {
     return (name || '?').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  selectGroup(groupId: string, groupName: string) {
+    this.expenseForm.patchValue({ groupId: groupId });
+    this.selectedGroupName = groupName;
+    this.isDropdownOpen = false; // <-- Close the dropdown after selection
+    this.onGroupChange(); 
   }
 }

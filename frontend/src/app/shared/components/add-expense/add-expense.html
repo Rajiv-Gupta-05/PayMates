@@ -54,13 +54,47 @@
           </div>
 
           <!-- Group -->
-          <div class="custom-input-group mb-3">
-            <i class="bi bi-collection text-secondary ps-4"></i>
-            <select class="form-select glass-input" formControlName="groupId" (change)="onGroupChange()"
-                    style="background:transparent;color:#fff;border:none;">
-              <option value="" style="background:#1a1f2e;">No Group (Individual)</option>
-              <option *ngFor="let g of groups" [value]="g._id" style="background:#1a1f2e;">{{ g.name }}</option>
-            </select>
+          <div class="custom-input-group mb-3 dropdown position-relative">
+            <i class="bi bi-collection text-secondary ps-4 z-1 position-absolute" style="top: 50%; transform: translateY(-50%);"></i>
+            
+            <button class="btn glass-input w-100 text-start d-flex justify-content-between align-items-center" 
+                    style="padding-left: 3rem;" 
+                    type="button" 
+                    (click)="isDropdownOpen = !isDropdownOpen"> <span class="text-light">{{ selectedGroupName }}</span>
+              <i class="bi bi-chevron-down text-secondary"></i> </button>
+
+            <ul class="dropdown-menu glass-dropdown-menu w-100 mt-2 p-2 shadow-lg" 
+                [class.show]="isDropdownOpen" 
+                style="position: absolute; z-index: 1050;">
+              
+              <li>
+                <button class="dropdown-item glass-dropdown-item rounded-3 d-flex align-items-center gap-3 py-2" 
+                        type="button" 
+                        (click)="selectGroup('', 'No Group (Individual)')"
+                        [class.active]="expenseForm.get('groupId')?.value === ''">
+                  <div class="avatar rounded-circle bg-secondary bg-opacity-25 text-light d-flex justify-content-center align-items-center" style="width: 32px; height: 32px;">
+                    <i class="bi bi-person"></i>
+                  </div>
+                  No Group (Individual)
+                </button>
+              </li>
+              
+              <li><hr class="dropdown-divider border-secondary border-opacity-25 my-2"></li>
+              
+              <li *ngFor="let g of groups">
+                <button class="dropdown-item glass-dropdown-item rounded-3 d-flex align-items-center gap-3 py-2 mb-1" 
+                        type="button"
+                        (click)="selectGroup(g._id, g.name)"
+                        [class.active]="expenseForm.get('groupId')?.value === g._id">
+                  <div class="avatar rounded-circle d-flex justify-content-center align-items-center shadow-sm" 
+                      style="width: 32px; height: 32px; background: linear-gradient(135deg, #00ffcc 0%, #0099ff 100%); color: #000;">
+                    <i class="bi bi-people-fill"></i>
+                  </div>
+                  {{ g.name }}
+                </button>
+              </li>
+              
+            </ul>
           </div>
 
           <!-- Participants (only shown when no group selected) -->

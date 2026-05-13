@@ -73,7 +73,7 @@
         </small>
 
         <div class="d-flex align-items-center gap-2 mt-1">
-          <small class="text-light">{{ (item.updatedAt || item.createdAt) | date:'d MMM y · h:mm a' }}</small>
+          <small class="text-light" style="font-size:12px;">{{ (item.updatedAt || item.createdAt) | date:'d MMM y · h:mm a' }}</small>
           <span *ngIf="isEdited(item)" 
                 class="badge rounded-pill d-inline-flex align-items-center tag-edited" 
                 style="background:rgba(255,255,255,0.06);color:#adb5bd;font-size:9px;letter-spacing:0.5px;padding:3px 7px;border:1px solid rgba(255,255,255,0.1);font-weight:600;">
@@ -98,7 +98,7 @@
            [style.color]="isPositiveForMe(item) ? '#00ffcc' : '#ff6b6b'">
           {{ isPositiveForMe(item) ? '+' : '-' }}₹{{ (item.kind==='expense' ? item.totalAmount : item.amount) | number:'1.2-2' }}
         </p>
-        <small class="text-muted" style="font-size:11px;">
+        <small class="text-light" style="font-size:12px;">
           {{ item.kind==='expense' ? 'total' : 'settled' }}
         </small>
       </div>
