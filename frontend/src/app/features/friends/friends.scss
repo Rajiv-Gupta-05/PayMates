@@ -1,0 +1,33 @@
+/* Container for the search input */
+.search-container {
+  background: rgba(255, 255, 255, 0.05); /* Very subtle glass fill */
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Make the icon look modern */
+.search-icon {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.1rem;
+  pointer-events: none; /* Allows clicks to pass through to the input */
+}
+
+/* FIX: Forces placeholder visibility */
+.custom-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important; /* Adjust 0.5 to 0.7 if you want it brighter */
+  opacity: 1; /* Browser override */
+  font-weight: 400;
+}
+
+/* Remove Bootstrap's default focus ring and add a custom glow */
+.custom-search-input:focus {
+  box-shadow: none;
+  background: transparent;
+}
+
+.search-container:focus-within {
+  border-color: rgba(0, 255, 204, 0.4); /* Glow matching your "Add Friend" button */
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+}

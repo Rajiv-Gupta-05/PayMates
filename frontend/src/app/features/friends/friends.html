@@ -19,9 +19,14 @@
   </div>
 
   <!-- Search Bar -->
-  <div class="glass-card p-3 mb-4">
-    <input type="text" class="form-control bg-transparent text-light border-0 px-0"
-           placeholder="🔍  Search friends..." [(ngModel)]="searchQuery">
+  <div class="glass-card mb-4">
+    <div class="search-container position-relative d-flex align-items-center">
+      <i class="bi bi-search position-absolute ms-3 search-icon"></i>
+      <input type="text" 
+            class="form-control bg-transparent text-light border-0 ps-5 py-3 custom-search-input"
+            placeholder="Search Your Friends..." 
+            [(ngModel)]="searchQuery">
+    </div>
   </div>
 
   <!-- Remove Error -->
