@@ -6,6 +6,7 @@ import { AppStateService } from '../../core/services/app-state.service';
 import { UserService } from '../../core/services/user.service';
 import { SettlementService } from '../../core/services/settlement.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-friends',
@@ -45,6 +46,7 @@ export class Friends implements OnInit, OnDestroy {
     private userService: UserService,
     private settlementService: SettlementService,
     private authService: AuthService,
+    private toastService: ToastService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -98,13 +100,12 @@ export class Friends implements OnInit, OnDestroy {
     this.userService.addFriend(user._id).subscribe({
       next: () => {
         this.isAdding[user._id] = false;
-        this.addFriendSuccess = `${user.name} added as a friend! ✅`;
+        this.toastService.show(`${user.name} added as a friend! ✅`, 'success');
         // Remove from search results
         this.addSearchResults = this.addSearchResults.filter(u => u._id !== user._id);
         this.addSearchQuery = '';
         this.appState.refreshFriends();
         this.cdr.detectChanges();
-        setTimeout(() => { this.addFriendSuccess = ''; this.cdr.detectChanges(); }, 3000);
       },
       error: (err) => {
         this.isAdding[user._id] = false;
@@ -133,6 +134,7 @@ export class Friends implements OnInit, OnDestroy {
     this.userService.removeFriend(this.removingFriendId).subscribe({
       next: () => {
         this.isRemoving = false;
+        this.toastService.show('Friend removed successfully', 'success');
         this.removingFriendId = null;
         this.appState.refreshFriends();
         this.cdr.detectChanges();
@@ -167,6 +169,7 @@ export class Friends implements OnInit, OnDestroy {
     this.settlementService.settleUp({ payerId, payeeId, amount, note: this.settleNote }).subscribe({
       next: () => {
         this.isSettling = false;
+        this.toastService.show('Settled up successfully! ✅', 'success');
         this.settleFriend = null;
         document.getElementById('closeSettleModal')?.click();
         this.appState.refreshFinancials();

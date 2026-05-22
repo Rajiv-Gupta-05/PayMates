@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AppStateService } from '../../core/services/app-state.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SettlementService } from '../../core/services/settlement.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -39,6 +40,7 @@ export class Dashboard implements OnInit, OnDestroy {
     private appState: AppStateService,
     private authService: AuthService,
     private settlementService: SettlementService,
+    private toastService: ToastService,
     private cdr: ChangeDetectorRef   // ← Fix #1: force change detection
   ) {}
 
@@ -104,6 +106,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.settlementService.settleUp({ payerId, payeeId, amount, note: this.settleNote }).subscribe({
       next: () => {
         this.isSettling = false;
+        this.toastService.show('Settled up successfully! ✅', 'success');
         this.settleFriend = null;
         document.getElementById('closeDashboardSettleModal')?.click();
         this.appState.refreshFinancials();

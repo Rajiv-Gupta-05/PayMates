@@ -1,0 +1,18 @@
+<div *ngIf="toast" class="toast-container position-fixed top-0 start-50 translate-middle-x p-3 mt-4" style="z-index: 1060">
+  <div class="custom-toast glass-card d-flex align-items-center gap-3 px-4 py-3 shadow-lg"
+       [class.show]="isVisible"
+       [ngClass]="{'toast-success': toast.type === 'success', 'toast-error': toast.type === 'error', 'toast-info': toast.type === 'info'}">
+    
+    <!-- Icon based on type -->
+    <div class="toast-icon rounded-circle d-flex justify-content-center align-items-center"
+         [ngClass]="{'bg-success-subtle text-success': toast.type === 'success', 'bg-danger-subtle text-danger': toast.type === 'error', 'bg-info-subtle text-info': toast.type === 'info'}"
+         style="width: 32px; height: 32px;">
+      <i class="bi" [ngClass]="{'bi-check-lg': toast.type === 'success', 'bi-x-lg': toast.type === 'error', 'bi-info-lg': toast.type === 'info'}"></i>
+    </div>
+
+    <!-- Message -->
+    <div class="fw-semibold text-light mb-0" style="font-size: 15px;">
+      {{ toast.message }}
+    </div>
+  </div>
+</div>

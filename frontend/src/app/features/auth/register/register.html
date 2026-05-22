@@ -69,7 +69,7 @@
             </div>
           </div>
 
-          <div class="mb-4">
+          <div class="mb-3">
             <div class="form-floating">
               <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password"
                      [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
@@ -78,6 +78,18 @@
             <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-danger small mt-1 ps-2">
               <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</span>
               <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters.</span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="form-floating">
+              <input type="password" class="form-control rounded-3" id="confirmPasswordInput" placeholder="Confirm Password" formControlName="confirmPassword"
+                     [class.is-invalid]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
+              <label for="confirmPasswordInput">Confirm Password</label>
+            </div>
+            <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" class="text-danger small mt-1 ps-2">
+              <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your password.</span>
+              <span *ngIf="registerForm.get('confirmPassword')?.errors?.['mismatch']">Passwords do not match.</span>
             </div>
           </div>
 
@@ -91,5 +103,13 @@
         </p>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Full Screen Loader Overlay -->
+<div *ngIf="isLoading" class="loader-overlay">
+  <div class="loader-content text-center">
+    <div class="custom-spinner mb-3"></div>
+    <h5 class="text-light fw-semibold m-0" style="letter-spacing: 1px;">Creating Account...</h5>
   </div>
 </div>

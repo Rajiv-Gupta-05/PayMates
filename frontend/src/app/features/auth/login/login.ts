@@ -15,6 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = ''; // For showing invalid credentials
+  isLoading: boolean = false;
 
   constructor(
     private fb: FormBuilder, 
@@ -30,17 +31,25 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      this.authService.login(this.loginForm.value).subscribe({
-        next: (response) => {
-          console.log('Login successful!', response);
-          this.router.navigate(['/dashboard']);
-        },
-        error: (err) => {
-          console.error('Login failed', err);
-          this.errorMessage = err.error.message || 'Invalid email or password.';
-          this.cdr.detectChanges(); // Force UI update
-        }
-      });
+      this.isLoading = true;
+      this.errorMessage = '';
+      this.cdr.detectChanges();
+      
+      setTimeout(() => {
+        this.authService.login(this.loginForm.value).subscribe({
+          next: (response) => {
+            this.isLoading = false;
+            console.log('Login successful!', response);
+            this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            this.isLoading = false;
+            console.error('Login failed', err);
+            this.errorMessage = err.error.message || 'Invalid email or password.';
+            this.cdr.detectChanges(); // Force UI update
+          }
+        });
+      }, 1000);
     }
   }
 

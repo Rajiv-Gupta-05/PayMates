@@ -8,6 +8,7 @@ import { UserService } from '../../core/services/user.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { ExpenseService } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-groups',
@@ -58,6 +59,7 @@ export class Groups implements OnInit, OnDestroy {
     private dashboardService: DashboardService,
     private expenseService: ExpenseService,
     private authService: AuthService,
+    private toastService: ToastService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef
   ) {
@@ -146,6 +148,7 @@ export class Groups implements OnInit, OnDestroy {
     this.groupService.createGroup(payload).subscribe({
       next: () => {
         this.isCreating = false;
+        this.toastService.show('Group created successfully! ✅', 'success');
         this.createForm.reset({ name: '', type: 'OTHER' });
         this.selectedFriends = [];
         this.friendSearchQuery = '';
@@ -251,6 +254,7 @@ export class Groups implements OnInit, OnDestroy {
     if (!confirm('Delete this group? All associated expenses will remain.')) return;
     this.groupService.deleteGroup(groupId).subscribe({
       next: () => {
+        this.toastService.show('Group deleted successfully', 'success');
         this.groupDetailCache.delete(groupId);
         this.selectedGroup = null;
         this.groupDetail = null;
@@ -259,7 +263,9 @@ export class Groups implements OnInit, OnDestroy {
         this.appState.refreshGroups();
         this.cdr.detectChanges();
       },
-      error: (err) => alert(err.error?.message || 'Failed to delete group.')
+      error: (err) => {
+        this.toastService.show(err.error?.message || 'Failed to delete group.', 'error');
+      }
     });
   }
 

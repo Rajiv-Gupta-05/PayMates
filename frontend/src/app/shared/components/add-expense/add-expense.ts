@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { AppStateService } from '../../../core/services/app-state.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-add-expense',
@@ -47,7 +48,8 @@ export class AddExpense implements OnInit, OnDestroy {
     private authService: AuthService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-    private el: ElementRef
+    private el: ElementRef,
+    private toastService: ToastService
   ) {
     this.expenseForm = this.fb.group({
       description: ['', Validators.required],
@@ -269,14 +271,11 @@ export class AddExpense implements OnInit, OnDestroy {
     request.subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.successMessage = this.isEditMode ? 'Expense updated! ✅' : 'Expense added! ✅';
+        this.toastService.show(this.isEditMode ? 'Expense updated successfully!' : 'Expense added successfully!', 'success');
         this.resetForm();
         this.appState.refreshFinancials();
-        setTimeout(() => {
-          this.successMessage = '';
-          this.appState.setEditingExpense(null);
-          document.getElementById('closeAddExpenseModal')?.click();
-        }, 1200);
+        this.appState.setEditingExpense(null);
+        document.getElementById('closeAddExpenseModal')?.click();
       },
       error: (err) => {
         this.isSubmitting = false;
