@@ -70,7 +70,9 @@ export class Friends implements OnInit, OnDestroy {
     const q = this.searchQuery.toLowerCase();
     if (!q) return this.friends;
     return this.friends.filter(f =>
-      f.name.toLowerCase().includes(q) || f.email.toLowerCase().includes(q)
+      f.name.toLowerCase().includes(q) || 
+      f.email.toLowerCase().includes(q) ||
+      (f.phone && f.phone.includes(q))
     );
   }
 

@@ -24,6 +24,8 @@ export class Layout implements OnInit {
   profileSuccessMessage = '';
   profileErrorMessage = '';
 
+  isLoggingOut = false;
+
   // Expose observable directly — use async pipe in template to avoid NG0100
   isLoading$: Observable<boolean>;
 
@@ -105,9 +107,15 @@ export class Layout implements OnInit {
   }
 
   logout(): void {
-    document.getElementById('closeProfileModal')?.click();
-    this.appState.reset();
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.isLoggingOut = true;
+    this.cdr.detectChanges(); // Ensure UI instantly shows the loader overlay
+
+    setTimeout(() => {
+      document.getElementById('closeProfileModal')?.click();
+      this.appState.reset();
+      this.authService.logout();
+      this.router.navigate(['/login']);
+      this.isLoggingOut = false;
+    }, 1500);
   }
 }

@@ -43,7 +43,33 @@ body {
 }
 
 .form-floating label {
-  color: #adb5bd;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Smooth bouncy effect */
+  z-index: 5;
+}
+
+/* Fix Bootstrap 5 floating label white background issue in dark theme */
+.form-floating label::after {
+  background-color: transparent !important;
+  display: none !important; /* Hide the pseudo-element completely */
+}
+
+/* Unique Floating Label styles when active (Neon Badge Effect) */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+  color: #00ffcc !important;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transform: scale(0.75) translateY(-50%) translateX(0.5rem) !important;
+  background: #0B0F19 !important; /* Match app background to cut the border */
+  padding: 4px 10px !important;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 204, 0.6);
+  box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2), inset 0 0 8px rgba(0, 255, 204, 0.1);
+  width: max-content !important;
+  height: auto !important;
 }
 
 /* Custom Gradient Button */

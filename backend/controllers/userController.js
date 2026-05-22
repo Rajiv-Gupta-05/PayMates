@@ -56,6 +56,7 @@ exports.searchUsers = async (req, res) => {
           $or: [
             { name: { $regex: req.query.search.trim(), $options: 'i' } },
             { email: { $regex: req.query.search.trim(), $options: 'i' } },
+            { phone: { $regex: req.query.search.trim(), $options: 'i' } },
           ],
         }
       : {};
@@ -157,7 +158,7 @@ exports.removeFriend = async (req, res) => {
 // @access  Private
 exports.getFriends = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('friends', 'name email');
+    const user = await User.findById(req.user._id).populate('friends', 'name email phone avatar');
     res.json(user.friends);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
