@@ -22,12 +22,17 @@ export class ToastComponent implements OnInit, OnDestroy {
     this.sub.add(
       this.toastService.toast$.subscribe(toast => {
         if (toast) {
-          this.toast = toast;
-          // small delay to ensure DOM updates before triggering CSS transition
+          // Defer the assignment of 'this.toast' to avoid NG0100 when triggered during Change Detection
           setTimeout(() => {
-            this.isVisible = true;
-            this.cdr.detectChanges();
-          }, 10);
+            this.toast = toast;
+            this.cdr.markForCheck();
+            
+            // small delay to ensure DOM updates before triggering CSS transition
+            setTimeout(() => {
+              this.isVisible = true;
+              this.cdr.markForCheck();
+            }, 10);
+          });
 
           if (this.timeoutId) {
             clearTimeout(this.timeoutId);
@@ -35,18 +40,20 @@ export class ToastComponent implements OnInit, OnDestroy {
 
           this.timeoutId = setTimeout(() => {
             this.isVisible = false;
-            this.cdr.detectChanges();
+            this.cdr.markForCheck();
             
             // Wait for fade out animation before removing from DOM completely
             setTimeout(() => {
               this.toast = null;
-              this.cdr.detectChanges();
+              this.cdr.markForCheck();
             }, 300); // 300ms matches the CSS transition duration
           }, toast.duration || 1000);
         } else {
-          this.isVisible = false;
-          this.toast = null;
-          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.isVisible = false;
+            this.toast = null;
+            this.cdr.markForCheck();
+          });
         }
       })
     );

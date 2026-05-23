@@ -76,12 +76,21 @@ export class AddExpense implements OnInit, OnDestroy {
     this.paidBy = this.currentUser;
     this.participants = [this.currentUser];
 
-    this.subs.add(this.appState.groups$.subscribe(g => { this.groups = g; }));
+    this.subs.add(this.appState.groups$.subscribe(g => { 
+      setTimeout(() => {
+        this.groups = g; 
+        this.cdr.markForCheck();
+      });
+    }));
+    
     this.subs.add(this.appState.friends$.subscribe(f => {
-      this.friends = f;
-      if (!this.selectedGroup && !this.isEditMode) {
-        this.participants = [this.currentUser];
-      }
+      setTimeout(() => {
+        this.friends = f;
+        if (!this.selectedGroup && !this.isEditMode) {
+          this.participants = [this.currentUser];
+        }
+        this.cdr.markForCheck();
+      });
     }));
 
     this.subs.add(this.appState.editingExpense$.subscribe(exp => {
