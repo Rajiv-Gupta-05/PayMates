@@ -25,6 +25,15 @@
       <a routerLink="/analytics" routerLinkActive="active-link" class="nav-link text-light rounded-3 d-flex align-items-center gap-3 py-3 px-3">
         <i class="bi bi-bar-chart-fill"></i> Analytics
       </a>
+      
+      <a (click)="openNotifications()" class="nav-link text-light rounded-3 d-flex align-items-center justify-content-between py-3 px-3 position-relative transition-hover" style="cursor: pointer;">
+        <div class="d-flex align-items-center gap-3">
+          <i class="bi bi-bell-fill"></i> Notifications
+        </div>
+        <span *ngIf="(unreadCount$ | async)! > 0" class="badge rounded-pill bg-danger" style="font-size: 11px;">
+          {{ unreadCount$ | async }}
+        </span>
+      </a>
     </nav>
 
     <div class="user-profile d-flex align-items-center gap-3 mt-auto glass-card p-3" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#profileModal" title="Profile Settings">
@@ -49,6 +58,12 @@
       <div class="d-flex align-items-center gap-3">
         <a routerLink="/analytics" routerLinkActive="text-info" class="text-decoration-none d-flex align-items-center" style="color: #00ffcc;">
           <i class="bi bi-bar-chart-fill fs-4"></i>
+        </a>
+        <a class="text-secondary text-decoration-none d-flex align-items-center position-relative" style="cursor: pointer;" (click)="openNotifications()">
+          <i class="bi bi-bell-fill fs-4" style="color: #00ffcc;"></i>
+          <span *ngIf="(unreadCount$ | async)! > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px;">
+            {{ unreadCount$ | async }}
+          </span>
         </a>
         <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark"
              style="width:35px;height:35px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:12px;cursor:pointer;overflow:hidden;"
@@ -164,5 +179,60 @@
   <div class="loader-content text-center">
     <div class="custom-spinner mb-3"></div>
     <h5 class="text-light fw-semibold m-0" style="letter-spacing: 1px;">Logging Out...</h5>
+  </div>
+</div>
+
+<!-- ═══ Notifications Offcanvas ══════════════════════════════════════════════ -->
+<div class="offcanvas offcanvas-end glass-modal border-0" tabindex="-1" id="notificationOffcanvas" style="width: 400px; max-width: 100vw;">
+  <div class="modal-accent-bar"></div>
+  <div class="offcanvas-header border-0 pt-4 px-4">
+    <h5 class="offcanvas-title fw-bold d-flex align-items-center gap-2">
+      <i class="bi bi-bell-fill text-light"></i> Notifications
+    </h5>
+    <button type="button" class="btn-close btn-close-white" (click)="closeNotifications()"></button>
+  </div>
+  <div class="offcanvas-body p-4 d-flex flex-column gap-3">
+    
+    <div *ngIf="(notifications$ | async)?.length === 0" class="text-center py-5 text-secondary">
+      <i class="bi bi-bell-slash fs-1 mb-3 d-block" style="opacity: 0.5;"></i>
+      <p>No new notifications.</p>
+    </div>
+
+    <div *ngFor="let notif of (notifications$ | async)" 
+         class="notification-card p-3 mb-2 rounded-4 d-flex align-items-start gap-3 position-relative"
+         [class.unread]="!notif.read"
+         [class.type-friend]="notif.type === 'friend_add'"
+         [class.type-expense]="notif.type === 'expense_add' || notif.type === 'group_expense_add'"
+         [class.type-group]="notif.type === 'group_create'"
+         [class.type-settle]="notif.type === 'settle_up'">
+      
+      <!-- Icon/Avatar -->
+      <div class="notif-icon-wrapper rounded-circle d-flex justify-content-center align-items-center flex-shrink-0 position-relative shadow-sm">
+        <img *ngIf="notif.type === 'friend_add' && notif.sender?.avatar" [src]="notif.sender.avatar" alt="Avatar" class="w-100 h-100 rounded-circle" style="object-fit:cover;">
+        
+        <i class="bi" *ngIf="notif.type !== 'friend_add' || !notif.sender?.avatar"
+           [class.bi-person-plus]="notif.type === 'friend_add'"
+           [class.bi-receipt]="notif.type === 'expense_add' || notif.type === 'group_expense_add'"
+           [class.bi-people]="notif.type === 'group_create'"
+           [class.bi-cash-coin]="notif.type === 'settle_up'">
+        </i>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-grow-1 pe-3">
+        <p class="notif-message m-0 mb-1" style="font-size: 14.5px; line-height: 1.4;">
+          {{ notif.message }}
+        </p>
+        <div class="d-flex align-items-center mt-2">
+          <small class="notif-time fw-semibold" style="font-size: 11px;">
+            <i class="bi bi-clock me-1"></i>{{ notif.createdAt | date:'d MMM y · h:mm a' }}
+          </small>
+        </div>
+      </div>
+      
+      <!-- Unread Indicator Dot -->
+      <span *ngIf="!notif.read" class="unread-dot position-absolute top-50 end-0 translate-middle-y me-3 rounded-circle"></span>
+    </div>
+
   </div>
 </div>

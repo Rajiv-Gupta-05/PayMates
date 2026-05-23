@@ -1,5 +1,6 @@
 const Settlement = require('../models/Settlement');
 const Group = require('../models/Group');
+const Notification = require('../models/Notification');
 
 // @desc    Record a payment / settle up
 // @route   POST /api/settlements
@@ -53,6 +54,16 @@ exports.addSettlement = async (req, res) => {
       .populate('payer', 'name email')
       .populate('payee', 'name email')
       .populate('groupId', 'name');
+
+    // Create notification for the other user
+    const recipientId = userId === payerId ? payeeId : payerId;
+    await Notification.create({
+      recipient: recipientId,
+      sender: userId,
+      type: 'settle_up',
+      entityId: settlement._id,
+      message: `${req.user.name} recorded a settlement of ₹${amount.toFixed(2)}.`
+    });
 
     res.status(201).json(populated);
   } catch (error) {

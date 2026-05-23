@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -7,6 +7,7 @@ import { AddExpense } from '../add-expense/add-expense';
 import { AuthService } from '../../../core/services/auth.service';
 import { AppStateService } from '../../../core/services/app-state.service';
 import { UserService } from '../../../core/services/user.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-layout',
@@ -15,7 +16,7 @@ import { UserService } from '../../../core/services/user.service';
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })
-export class Layout implements OnInit {
+export class Layout implements OnInit, AfterViewInit {
   currentUser: any = null;
 
   // Profile Form
@@ -28,16 +29,23 @@ export class Layout implements OnInit {
 
   // Expose observable directly — use async pipe in template to avoid NG0100
   isLoading$: Observable<boolean>;
+  
+  unreadCount$: Observable<number>;
+  notifications$: Observable<any[]>;
 
   constructor(
     private authService: AuthService,
     private appState: AppStateService,
     private userService: UserService,
+    public notificationService: NotificationService,
     private router: Router,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef
   ) {
     this.isLoading$ = this.appState.isLoading$;
+    this.unreadCount$ = this.notificationService.unreadCount$;
+    this.notifications$ = this.notificationService.notifications$;
+    
     this.profileForm = this.fb.group({
       name: ['', Validators.required],
       email: [{value: '', disabled: true}],
@@ -57,7 +65,52 @@ export class Layout implements OnInit {
       });
     }
     // Single parallel load — all components subscribe to AppState, no individual HTTP calls
-    this.appState.loadAll();
+    if (this.authService.isLoggedIn()) {
+      this.appState.loadAll();
+      this.notificationService.fetchNotifications().subscribe({
+        error: (err) => console.error('Failed to fetch notifications', err)
+      });
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (typeof document !== 'undefined') {
+      const offcanvasEl = document.getElementById('notificationOffcanvas');
+      if (offcanvasEl) {
+        offcanvasEl.addEventListener('hidden.bs.offcanvas', () => {
+          this.markNotificationsAsRead();
+        });
+      }
+    }
+  }
+
+  openNotifications(): void {
+    if (typeof document !== 'undefined' && typeof (window as any).bootstrap !== 'undefined') {
+      const offcanvasEl = document.getElementById('notificationOffcanvas');
+      if (offcanvasEl) {
+        let bsOffcanvas = (window as any).bootstrap.Offcanvas.getInstance(offcanvasEl);
+        if (!bsOffcanvas) {
+          bsOffcanvas = new (window as any).bootstrap.Offcanvas(offcanvasEl);
+        }
+        bsOffcanvas.show();
+      }
+    }
+  }
+
+  closeNotifications(): void {
+    if (typeof document !== 'undefined' && typeof (window as any).bootstrap !== 'undefined') {
+      const offcanvasEl = document.getElementById('notificationOffcanvas');
+      if (offcanvasEl) {
+        const bsOffcanvas = (window as any).bootstrap.Offcanvas.getInstance(offcanvasEl);
+        if (bsOffcanvas) {
+          bsOffcanvas.hide();
+        }
+      }
+    }
+  }
+
+  markNotificationsAsRead(): void {
+    this.notificationService.markAsRead().subscribe();
   }
 
   getInitials(): string {

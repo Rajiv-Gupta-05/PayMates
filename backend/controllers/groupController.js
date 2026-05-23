@@ -1,5 +1,6 @@
 const Group = require('../models/Group');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 
 // @desc    Create a new group
 // @route   POST /api/groups
@@ -63,6 +64,24 @@ exports.createGroup = async (req, res) => {
     }
 
     const populated = await group.populate('members', 'name email');
+
+    // Create notifications for all members (except creator)
+    const notificationPromises = groupMembers
+      .filter(id => id !== creatorId)
+      .map(id => {
+        return Notification.create({
+          recipient: id,
+          sender: creatorId,
+          type: 'group_create',
+          entityId: group._id,
+          message: `${req.user.name} added you to the group "${group.name}".`
+        });
+      });
+      
+    if (notificationPromises.length > 0) {
+      await Promise.all(notificationPromises).catch(err => console.error(err));
+    }
+
     res.status(201).json(populated);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });

@@ -1,5 +1,6 @@
 const Expense = require('../models/Expense');
 const Group = require('../models/Group');
+const Notification = require('../models/Notification');
 
 // @desc    Create a new expense
 // @route   POST /api/expenses
@@ -72,6 +73,23 @@ exports.createExpense = async (req, res) => {
       .populate('createdBy', 'name email')
       .populate('splits.user', 'name email')
       .populate('groupId', 'name');
+
+    // Create notifications for everyone involved in the split (except the creator)
+    const notificationPromises = splits
+      .filter(split => split.user.toString() !== req.user._id.toString())
+      .map(split => {
+        return Notification.create({
+          recipient: split.user,
+          sender: req.user._id,
+          type: groupId ? 'group_expense_add' : 'expense_add',
+          entityId: expense._id,
+          message: `${req.user.name} added an expense: "${expense.description}"`
+        });
+      });
+    
+    if (notificationPromises.length > 0) {
+      await Promise.all(notificationPromises).catch(err => console.error("Notification Error:", err));
+    }
 
     res.status(201).json(populated);
   } catch (error) {

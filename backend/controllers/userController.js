@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 
 // @desc    Get logged-in user's profile
 // @route   GET /api/users/me
@@ -110,6 +111,14 @@ exports.addFriend = async (req, res) => {
 
     await user.save();
     await friend.save();
+
+    // Create Notification for the added friend
+    await Notification.create({
+      recipient: friendId,
+      sender: user._id,
+      type: 'friend_add',
+      message: `${user.name} added you as a friend.`
+    });
 
     res.json({ message: 'Friend added successfully' });
   } catch (error) {

@@ -25,6 +25,7 @@ app.use('/api/groups', require('./routes/groupRoutes'));
 app.use('/api/expenses', require('./routes/expenseRoutes'));
 app.use('/api/settlements', require('./routes/settlementRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 // 5. Basic Route to test if the server is running
 app.get('/', (req, res) => {
