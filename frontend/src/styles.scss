@@ -21,6 +21,13 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  /* Fix: force each card into its own GPU compositing layer to prevent
+     sub-pixel bleed artifacts between adjacent backdrop-filter elements */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  isolation: isolate;
+  overflow: hidden;
+  will-change: transform;
 }
 
 /* Customizing Bootstrap inputs for Dark Theme */

@@ -7,6 +7,7 @@ import { Groups } from './features/groups/groups';
 import { Friends } from './features/friends/friends';
 import { Activity } from './features/activity/activity';
 import { Analytics } from './features/analytics/analytics';
+import { FriendDetails } from './features/friends/friend-details/friend-details';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -22,6 +23,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'groups', component: Groups },
       { path: 'friends', component: Friends },
+      { path: 'friends/:id', component: FriendDetails },
       { path: 'activity', component: Activity },
       { path: 'analytics', component: Analytics },
     ]

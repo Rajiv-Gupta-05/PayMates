@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppStateService } from '../../core/services/app-state.service';
 import { UserService } from '../../core/services/user.service';
@@ -11,7 +12,7 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'app-friends',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './friends.html',
   styleUrl: './friends.scss',
 })
