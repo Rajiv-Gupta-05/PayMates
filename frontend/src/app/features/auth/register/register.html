@@ -70,10 +70,13 @@
           </div>
 
           <div class="mb-3">
-            <div class="form-floating">
-              <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password"
+            <div class="form-floating position-relative">
+              <input [type]="showPassword ? 'text' : 'password'" class="form-control rounded-3 pe-5" id="passwordInput" placeholder="Password" formControlName="password"
                      [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
               <label for="passwordInput">Password (min 6 chars)</label>
+              <button type="button" class="password-toggle-btn" (click)="showPassword = !showPassword" aria-label="Toggle password visibility">
+                <i class="bi" [class.bi-eye-fill]="showPassword" [class.bi-eye-slash-fill]="!showPassword"></i>
+              </button>
             </div>
             <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-danger small mt-1 ps-2">
               <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</span>
@@ -82,10 +85,13 @@
           </div>
 
           <div class="mb-4">
-            <div class="form-floating">
-              <input type="password" class="form-control rounded-3" id="confirmPasswordInput" placeholder="Confirm Password" formControlName="confirmPassword"
+            <div class="form-floating position-relative">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control rounded-3 pe-5" id="confirmPasswordInput" placeholder="Confirm Password" formControlName="confirmPassword"
                      [class.is-invalid]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
               <label for="confirmPasswordInput">Confirm Password</label>
+              <button type="button" class="password-toggle-btn" (click)="showConfirmPassword = !showConfirmPassword" aria-label="Toggle confirm password visibility">
+                <i class="bi" [class.bi-eye-fill]="showConfirmPassword" [class.bi-eye-slash-fill]="!showConfirmPassword"></i>
+              </button>
             </div>
             <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" class="text-danger small mt-1 ps-2">
               <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your password.</span>

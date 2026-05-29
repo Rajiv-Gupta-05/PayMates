@@ -16,6 +16,8 @@ export class RegisterComponent {
   registerForm: FormGroup;
   errorMessage: string = ''; // For showing backend errors
   isLoading: boolean = false;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   constructor(
     private fb: FormBuilder, 

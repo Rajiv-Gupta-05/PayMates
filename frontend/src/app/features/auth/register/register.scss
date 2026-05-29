@@ -27,3 +27,37 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Password Visibility Toggle */
+.password-toggle-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  transition: right 0.2s ease, color 0.25s ease, transform 0.25s ease;
+  font-size: 1.1rem;
+
+  &:hover {
+    color: #00ffcc;
+    transform: translateY(-50%) scale(1.1);
+  }
+}
+
+/* Avoid overlap with Bootstrap's validation error exclamation icon */
+input.is-invalid ~ .password-toggle-btn {
+  right: 46px;
+}
+
+/* Ensure padding so password text doesn't overlap eye icon */
+.pe-5 {
+  padding-right: 3rem !important;
+}

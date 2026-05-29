@@ -49,10 +49,13 @@
           </div>
 
           <div class="mb-4">
-            <div class="form-floating">
-              <input type="password" class="form-control rounded-3" id="passwordInput" placeholder="Password" formControlName="password"
+            <div class="form-floating position-relative">
+              <input [type]="showPassword ? 'text' : 'password'" class="form-control rounded-3 pe-5" id="passwordInput" placeholder="Password" formControlName="password"
                      [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
               <label for="passwordInput">Password</label>
+              <button type="button" class="password-toggle-btn" (click)="showPassword = !showPassword" aria-label="Toggle password visibility">
+                <i class="bi" [class.bi-eye-fill]="showPassword" [class.bi-eye-slash-fill]="!showPassword"></i>
+              </button>
             </div>
             <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-danger small mt-1 ps-2">
               <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
@@ -78,4 +81,16 @@
     <div class="custom-spinner mb-3"></div>
     <h5 class="text-light fw-semibold m-0" style="letter-spacing: 1px;">Authenticating...</h5>
   </div>
+</div>
+
+<!-- Google Coming Soon Premium Toast -->
+<div *ngIf="showGoogleComingSoon" class="coming-soon-toast d-flex align-items-center gap-3">
+  <div class="toast-icon-bg d-flex justify-content-center align-items-center flex-shrink-0">
+    <i class="bi bi-google text-dark fs-5"></i>
+  </div>
+  <div class="toast-content flex-grow-1">
+    <h6 class="m-0 text-white fw-bold">Coming Soon! 🚀</h6>
+    <small class="text-secondary opacity-75">Google Sign-In is being prepared for you.</small>
+  </div>
+  <button type="button" class="btn-close btn-close-white ms-2" (click)="showGoogleComingSoon = false" aria-label="Close"></button>
 </div>

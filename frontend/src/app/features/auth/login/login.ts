@@ -17,6 +17,9 @@ export class LoginComponent {
   errorMessage: string = ''; // For showing invalid credentials
   isLoading: boolean = false;
 
+  showGoogleComingSoon: boolean = false;
+  showPassword: boolean = false;
+
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService, // Inject service
@@ -54,6 +57,13 @@ export class LoginComponent {
   }
 
   loginWithGoogle() {
-    console.log('Google login not yet connected to backend.');
+    this.showGoogleComingSoon = true;
+    this.cdr.detectChanges();
+
+    // Auto-hide the coming soon popup after 3 seconds
+    setTimeout(() => {
+      this.showGoogleComingSoon = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }
