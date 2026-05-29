@@ -173,4 +173,42 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
+}
+
+/* ═══ Invite Button Styles ═══ */
+.invite-nav-link {
+  background: linear-gradient(135deg, rgba(162, 155, 254, 0.08), rgba(116, 185, 255, 0.08)) !important;
+  border: 1px solid rgba(162, 155, 254, 0.15) !important;
+  color: #a29bfe !important;
+  transition: all 0.3s ease;
+  position: relative;
+
+  i {
+    color: #a29bfe;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(162, 155, 254, 0.15), rgba(116, 185, 255, 0.15)) !important;
+    border-color: rgba(162, 155, 254, 0.3) !important;
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(162, 155, 254, 0.1);
+  }
+}
+
+.invite-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #a29bfe, #74b9ff);
+  color: #0b0f19;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  animation: invitePulse 2s ease-in-out infinite;
+}
+
+@keyframes invitePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(162, 155, 254, 0.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(162, 155, 254, 0); }
+}
+

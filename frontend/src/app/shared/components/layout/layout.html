@@ -25,6 +25,12 @@
       <a routerLink="/analytics" routerLinkActive="active-link" class="nav-link text-light rounded-3 d-flex align-items-center gap-3 py-3 px-3">
         <i class="bi bi-bar-chart-fill"></i> Analytics
       </a>
+
+      <!-- Invite Friends -->
+      <a (click)="openInviteModal()" class="nav-link text-light rounded-3 d-flex align-items-center gap-3 py-3 px-3 invite-nav-link" style="cursor: pointer;" id="sidebarInviteBtn">
+        <i class="bi bi-person-plus-fill"></i> Invite Friends
+        <span class="invite-badge ms-auto">New</span>
+      </a>
       
       <a (click)="openNotifications()" class="nav-link text-light rounded-3 d-flex align-items-center justify-content-between py-3 px-3 position-relative transition-hover" style="cursor: pointer;">
         <div class="d-flex align-items-center gap-3">
@@ -58,6 +64,10 @@
       <div class="d-flex align-items-center gap-3">
         <a routerLink="/analytics" routerLinkActive="text-info" class="text-decoration-none d-flex align-items-center" style="color: #00ffcc;">
           <i class="bi bi-bar-chart-fill fs-4"></i>
+        </a>
+        <!-- Mobile Invite Button -->
+        <a class="text-decoration-none d-flex align-items-center position-relative" style="cursor: pointer; color: #a29bfe;" (click)="openInviteModal()" id="mobileHeaderInviteBtn" title="Invite Friends">
+          <i class="bi bi-person-plus-fill fs-4"></i>
         </a>
         <a class="text-secondary text-decoration-none d-flex align-items-center position-relative" style="cursor: pointer;" (click)="openNotifications()">
           <i class="bi bi-bell-fill fs-4" style="color: #00ffcc;"></i>
@@ -109,6 +119,9 @@
 </div>
 
 <app-add-expense></app-add-expense>
+
+<!-- ═══ Invite Friends Modal ══════════════════════════════════════════════ -->
+<app-invite-modal *ngIf="showInviteModal" (closed)="closeInviteModal()"></app-invite-modal>
 
 <!-- Profile Settings Modal -->
 <div class="modal fade" id="profileModal" tabindex="-1">

@@ -8,11 +8,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AppStateService } from '../../../core/services/app-state.service';
 import { UserService } from '../../../core/services/user.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { InviteModal } from '../invite-modal/invite-modal';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, AsyncPipe, FormsModule, ReactiveFormsModule, AddExpense],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, AsyncPipe, FormsModule, ReactiveFormsModule, AddExpense, InviteModal],
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })
@@ -26,6 +27,7 @@ export class Layout implements OnInit, AfterViewInit {
   profileErrorMessage = '';
 
   isLoggingOut = false;
+  showInviteModal = false;
 
   // Expose observable directly — use async pipe in template to avoid NG0100
   isLoading$: Observable<boolean>;
@@ -111,6 +113,14 @@ export class Layout implements OnInit, AfterViewInit {
 
   markNotificationsAsRead(): void {
     this.notificationService.markAsRead().subscribe();
+  }
+
+  openInviteModal(): void {
+    this.showInviteModal = true;
+  }
+
+  closeInviteModal(): void {
+    this.showInviteModal = false;
   }
 
   getInitials(): string {

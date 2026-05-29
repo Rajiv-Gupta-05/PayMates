@@ -1,0 +1,525 @@
+// ═══ Invite Modal ══════════════════════════════════════════════════════════
+
+.invite-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 18, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: backdropFadeIn 0.25s ease;
+}
+
+@keyframes backdropFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.invite-modal {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(15, 22, 39, 0.97), rgba(22, 30, 53, 0.97));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 255, 204, 0.08);
+  overflow: hidden;
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(30px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+// Accent gradient top border
+.modal-accent-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #00ffcc, #0099ff, #a29bfe, #00ffcc);
+  background-size: 200% 100%;
+  animation: gradientShift 3s linear infinite;
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+.invite-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 24px 24px 20px;
+}
+
+.invite-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.18), rgba(0, 123, 255, 0.18));
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #00ffcc;
+  flex-shrink: 0;
+}
+
+.invite-title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.invite-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.invite-close-btn {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+}
+
+
+// ─── Body ─────────────────────────────────────────────────────────────────────
+.invite-body {
+  padding: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tab-content-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.optional-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 1px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// ─── Tag Input ────────────────────────────────────────────────────────────────
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  min-height: 52px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 10px 14px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: text;
+
+  &:focus-within,
+  &.focused {
+    border-color: rgba(0, 255, 204, 0.35);
+    box-shadow: 0 0 0 4px rgba(0, 255, 204, 0.07);
+  }
+}
+
+.recipient-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.12), rgba(0, 123, 255, 0.12));
+  border: 1px solid rgba(0, 255, 204, 0.25);
+  border-radius: 8px;
+  padding: 4px 10px 4px 8px;
+  font-size: 13px;
+  color: #00ffcc;
+  font-weight: 500;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  .tag-icon {
+    font-size: 11px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .tag-remove {
+    background: none;
+    border: none;
+    color: rgba(0, 255, 204, 0.5);
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+
+    &:hover { color: #ff6b6b; }
+  }
+}
+
+.tag-input {
+  flex: 1;
+  min-width: 120px;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  padding: 2px 0;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 13px;
+  }
+}
+
+.field-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.25);
+  margin: 0;
+
+  kbd {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 11px;
+    font-family: monospace;
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+// ─── Message Section ──────────────────────────────────────────────────────────
+.message-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.invite-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-sizing: border-box;
+
+  &::placeholder { color: rgba(255, 255, 255, 0.2); }
+
+  &:focus {
+    outline: none;
+    border-color: rgba(0, 255, 204, 0.35);
+    box-shadow: 0 0 0 4px rgba(0, 255, 204, 0.07);
+  }
+}
+
+.char-count {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.2);
+  text-align: right;
+  margin: 0;
+}
+
+// ─── Preview Card ──────────────────────────────────────────────────────────────
+.preview-card {
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.04), rgba(0, 123, 255, 0.04));
+  border: 1px dashed rgba(0, 255, 204, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.preview-label {
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(0, 255, 204, 0.6);
+  border-bottom: 1px dashed rgba(0, 255, 204, 0.1);
+  background: rgba(0, 255, 204, 0.03);
+}
+
+.preview-body {
+  padding: 14px 16px;
+}
+
+.preview-app-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+
+  .dot { color: #00ffcc; }
+}
+
+.preview-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 10px;
+  line-height: 1.6;
+}
+
+.preview-msg {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.preview-cta {
+  display: inline-block;
+  background: linear-gradient(135deg, #00ffcc, #0099ff);
+  color: #0b0f19;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+// ─── Send Button ──────────────────────────────────────────────────────────────
+.invite-send-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #00ffcc, #0099ff);
+  border: none;
+  border-radius: 14px;
+  color: #0b0f19;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 8px 24px rgba(0, 255, 204, 0.2);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 255, 204, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.count-badge {
+  background: rgba(11, 15, 25, 0.3);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.invite-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(11, 15, 25, 0.3);
+  border-left-color: #0b0f19;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ─── Alerts ───────────────────────────────────────────────────────────────────
+.invite-alert {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.5;
+}
+
+.invite-alert-success {
+  background: rgba(0, 255, 204, 0.08);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  color: #00ffcc;
+}
+
+.invite-alert-error {
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+}
+
+// ─── Responsive ───────────────────────────────────────────────────────────────
+@media (max-width: 575.98px) {
+  .invite-modal {
+    border-radius: 20px;
+    max-height: 95vh;
+  }
+
+  .invite-header {
+    padding: 20px 18px 16px;
+    gap: 12px;
+  }
+
+  .invite-body {
+    padding: 0 18px 20px;
+  }
+
+  .recipient-tag {
+    max-width: 160px;
+    font-size: 12px;
+  }
+}
+
+// ─── SMTP Setup Guide Panel ───────────────────────────────────────────────────
+.smtp-setup-guide {
+  background: linear-gradient(135deg, rgba(255, 183, 77, 0.06), rgba(255, 118, 117, 0.06));
+  border: 1px solid rgba(255, 183, 77, 0.2);
+  border-radius: 14px;
+  overflow: hidden;
+  animation: guideSlideIn 0.3s ease;
+}
+
+@keyframes guideSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.smtp-guide-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 183, 77, 0.08);
+  border-bottom: 1px solid rgba(255, 183, 77, 0.12);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffd166;
+
+  i:first-child { font-size: 14px; }
+
+  .smtp-guide-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: rgba(255, 209, 102, 0.5);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color 0.2s;
+    &:hover { color: #ff6b6b; }
+  }
+}
+
+.smtp-steps {
+  margin: 0;
+  padding: 14px 20px 14px 36px;
+  list-style: decimal;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  li {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.6;
+
+    strong { color: rgba(255, 255, 255, 0.85); }
+
+    code {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      color: #00ffcc;
+    }
+  }
+}
+
+.step-example {
+  display: inline-block;
+  margin-top: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.3px;
+}
+
+.smtp-link {
+  color: #74b9ff;
+  text-decoration: none;
+  font-weight: 600;
+  &:hover { text-decoration: underline; color: #00ffcc; }
+}
+
