@@ -143,6 +143,14 @@
       color: #00ffcc;
     }
   }
+
+  &.type-comment {
+    &.unread { border-left-color: #fdcb6e; }
+    .notif-icon-wrapper {
+      background: rgba(253, 203, 110, 0.15);
+      color: #fdcb6e;
+    }
+  }
 }
 
 .loader-overlay {

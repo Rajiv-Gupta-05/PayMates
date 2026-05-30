@@ -229,6 +229,74 @@
             </button>
           </div>
         </div>
+
+        <!-- Comments Section -->
+        <hr class="my-4" style="border-color: rgba(255,255,255,0.1); margin-bottom: 1.5rem !important;">
+
+        <div class="comments-section">
+          <h6 class="fw-semibold text-secondary text-uppercase mb-3 d-flex align-items-center justify-content-between" style="font-size:11px;letter-spacing:1.5px;">
+            <span>💬 Comments ({{ comments.length }})</span>
+            <span *ngIf="isLoadingComments" class="spinner-border spinner-border-sm text-secondary" role="status"></span>
+          </h6>
+
+          <!-- Comments List -->
+          <div *ngIf="!isLoadingComments && comments.length === 0" class="text-center py-4 text-secondary opacity-75" style="font-size:13px;">
+            No comments yet. Start the conversation!
+          </div>
+
+          <div *ngIf="comments.length > 0" class="d-flex flex-column gap-3 mb-4" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+            <div *ngFor="let comment of comments" class="d-flex gap-3 align-items-start">
+              <!-- Avatar Circle -->
+              <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
+                   style="width:32px;height:32px;font-size:11px;"
+                   [style.background]="comment.author?._id === currentUser?._id ? 'linear-gradient(135deg,#00ffcc,#007bff)' : 'rgba(255,255,255,0.15)'">
+                {{ getInitials(comment.author?.name) }}
+              </div>
+              
+              <!-- Content Bubble -->
+              <div class="flex-grow-1 rounded-3 position-relative" 
+                   style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); min-width: 0; padding: 8px 12px; border-radius: 12px; padding-right: 30px;">
+                <div class="d-flex justify-content-between align-items-center mb-1 gap-2">
+                  <strong class="text-light text-truncate" style="font-size:12px; max-width: 120px;">
+                    {{ comment.author?._id === currentUser?._id ? 'You' : comment.author?.name }}
+                  </strong>
+                  <span class="text-secondary flex-shrink-0" style="font-size:10px;">
+                    {{ comment.createdAt | date:'shortTime' }} · {{ comment.createdAt | date:'MMM d' }}
+                  </span>
+                </div>
+                <p class="m-0 text-white-50" style="font-size:13px; line-height: 1.4; word-break: break-word; text-align: left;">
+                  {{ comment.text }}
+                </p>
+
+                <!-- Delete button (absolute positioned / floats right) -->
+                <button *ngIf="comment.author?._id === currentUser?._id" 
+                        class="btn btn-link p-0 text-secondary border-0 position-absolute end-0 top-0 mt-1 me-2" 
+                        style="font-size: 14px; text-decoration: none; line-height: 1;"
+                        (click)="deleteComment(comment._id)">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Comment Input -->
+          <div class="d-flex gap-2 align-items-center mt-3">
+            <input type="text" 
+                   class="form-control glass-input py-2" 
+                   placeholder="Write a comment..." 
+                   [(ngModel)]="newCommentText" 
+                   (keyup.enter)="postComment()"
+                   [disabled]="isPostingComment"
+                   style="font-size:13px; background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #fff; border-radius: 20px;">
+            <button class="btn btn-sm btn-gradient py-2 px-3 flex-shrink-0" 
+                    [disabled]="!newCommentText.trim() || isPostingComment"
+                    (click)="postComment()"
+                    style="border-radius: 20px; font-size:13px; min-width: 60px;">
+              <span *ngIf="!isPostingComment">Post</span>
+              <span *ngIf="isPostingComment" class="spinner-border spinner-border-sm" role="status"></span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

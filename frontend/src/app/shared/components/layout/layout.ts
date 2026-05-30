@@ -133,6 +133,16 @@ export class Layout implements OnInit, AfterViewInit {
       .slice(0, 2);
   }
 
+  getSenderInitials(sender: any): string {
+    if (!sender?.name) return '?';
+    return sender.name
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
   updateProfile(): void {
     if (this.profileForm.invalid) return;
 

@@ -217,18 +217,41 @@
          [class.type-friend]="notif.type === 'friend_add'"
          [class.type-expense]="notif.type === 'expense_add' || notif.type === 'group_expense_add'"
          [class.type-group]="notif.type === 'group_create'"
-         [class.type-settle]="notif.type === 'settle_up'">
+         [class.type-settle]="notif.type === 'settle_up'"
+         [class.type-comment]="notif.type === 'expense_comment'">
       
       <!-- Icon/Avatar -->
-      <div class="notif-icon-wrapper rounded-circle d-flex justify-content-center align-items-center flex-shrink-0 position-relative shadow-sm">
-        <img *ngIf="notif.type === 'friend_add' && notif.sender?.avatar" [src]="notif.sender.avatar" alt="Avatar" class="w-100 h-100 rounded-circle" style="object-fit:cover;">
-        
-        <i class="bi" *ngIf="notif.type !== 'friend_add' || !notif.sender?.avatar"
-           [class.bi-person-plus]="notif.type === 'friend_add'"
-           [class.bi-receipt]="notif.type === 'expense_add' || notif.type === 'group_expense_add'"
-           [class.bi-people]="notif.type === 'group_create'"
-           [class.bi-cash-coin]="notif.type === 'settle_up'">
-        </i>
+      <div class="notif-icon-wrapper rounded-circle d-flex justify-content-center align-items-center flex-shrink-0 position-relative shadow-sm"
+           [style.background]="(notif.type === 'friend_add' || notif.type === 'expense_comment') && !notif.sender?.avatar ? 'linear-gradient(135deg,#00ffcc,#007bff)' : ''"
+           [style.color]="(notif.type === 'friend_add' || notif.type === 'expense_comment') && !notif.sender?.avatar ? '#0b0f19' : ''">
+        <!-- If type is comment or friend addition, prioritize user avatar/initials -->
+        <ng-container *ngIf="notif.type === 'friend_add' || notif.type === 'expense_comment'">
+          <img *ngIf="notif.sender?.avatar" [src]="notif.sender.avatar" alt="Avatar" class="w-100 h-100 rounded-circle" style="object-fit:cover;">
+          <span *ngIf="!notif.sender?.avatar" style="font-size:11px; font-weight:800; letter-spacing:0.5px;">
+            {{ getSenderInitials(notif.sender) }}
+          </span>
+          
+          <!-- Small corner badge for comment type specifically -->
+          <span *ngIf="notif.type === 'expense_comment'" 
+                class="position-absolute bottom-0 end-0 rounded-circle d-flex justify-content-center align-items-center shadow-sm"
+                style="width: 18px; height: 18px; background: #fdcb6e; color: #0b0f19; font-size: 9px; right: -2px; bottom: -2px; border: 1px solid #1a202c;">
+            <i class="bi bi-chat-left-text-fill"></i>
+          </span>
+          <span *ngIf="notif.type === 'friend_add'" 
+                class="position-absolute bottom-0 end-0 rounded-circle d-flex justify-content-center align-items-center shadow-sm"
+                style="width: 18px; height: 18px; background: #a29bfe; color: #0b0f19; font-size: 9px; right: -2px; bottom: -2px; border: 1px solid #1a202c;">
+            <i class="bi bi-person-plus-fill"></i>
+          </span>
+        </ng-container>
+
+        <!-- Other notification types get generic icons -->
+        <ng-container *ngIf="notif.type !== 'friend_add' && notif.type !== 'expense_comment'">
+          <i class="bi"
+             [class.bi-receipt]="notif.type === 'expense_add' || notif.type === 'group_expense_add'"
+             [class.bi-people]="notif.type === 'group_create'"
+             [class.bi-cash-coin]="notif.type === 'settle_up'">
+          </i>
+        </ng-container>
       </div>
 
       <!-- Content -->

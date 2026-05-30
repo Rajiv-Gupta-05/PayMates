@@ -1,14 +1,17 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Subscription, combineLatest } from 'rxjs';
 import { AppStateService } from '../../core/services/app-state.service';
 import { ExpenseService } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CommentService } from '../../core/services/comment.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-activity',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './activity.html',
   styleUrl: './activity.scss',
 })
@@ -21,10 +24,17 @@ export class Activity implements OnInit, OnDestroy {
   selectedExpense: any = null;
   selectedSettlement: any = null;
 
+  comments: any[] = [];
+  newCommentText = '';
+  isPostingComment = false;
+  isLoadingComments = false;
+
   constructor(
     private appState: AppStateService,
     private expenseService: ExpenseService,
     private authService: AuthService,
+    private commentService: CommentService,
+    private toastService: ToastService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -59,6 +69,7 @@ export class Activity implements OnInit, OnDestroy {
     if (item.kind === 'expense') {
       this.selectedExpense = item;
       this.selectedSettlement = null;
+      this.loadComments(item._id);
     } else {
       this.selectedSettlement = item;
       this.selectedExpense = null;
@@ -131,4 +142,62 @@ export class Activity implements OnInit, OnDestroy {
   }
 
   abs(n: number): number { return Math.abs(n); }
+
+  loadComments(expenseId: string): void {
+    this.isLoadingComments = true;
+    this.comments = [];
+    this.cdr.detectChanges();
+
+    this.commentService.getComments(expenseId).subscribe({
+      next: (data) => {
+        this.comments = data;
+        this.isLoadingComments = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.toastService.show(err.error?.message || 'Could not load comments.', 'error');
+        this.isLoadingComments = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  postComment(): void {
+    if (!this.newCommentText || !this.newCommentText.trim()) return;
+    if (!this.selectedExpense) return;
+
+    this.isPostingComment = true;
+    const text = this.newCommentText.trim();
+    this.commentService.addComment(this.selectedExpense._id, text).subscribe({
+      next: (comment) => {
+        this.comments.push(comment);
+        this.newCommentText = '';
+        this.isPostingComment = false;
+        this.toastService.show('Comment posted!', 'success');
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.toastService.show(err.error?.message || 'Could not post comment.', 'error');
+        this.isPostingComment = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  deleteComment(commentId: string): void {
+    if (!this.selectedExpense) return;
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    this.commentService.deleteComment(this.selectedExpense._id, commentId).subscribe({
+      next: () => {
+        this.comments = this.comments.filter(c => c._id !== commentId);
+        this.toastService.show('Comment deleted.', 'success');
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.toastService.show(err.error?.message || 'Could not delete comment.', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
 }

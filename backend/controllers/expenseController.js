@@ -1,6 +1,7 @@
 const Expense = require('../models/Expense');
 const Group = require('../models/Group');
 const Notification = require('../models/Notification');
+const Comment = require('../models/Comment');
 
 // @desc    Create a new expense
 // @route   POST /api/expenses
@@ -264,6 +265,126 @@ exports.deleteExpense = async (req, res) => {
 
     await expense.deleteOne();
     res.json({ message: 'Expense deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+// @desc    Get comments for an expense
+// @route   GET /api/expenses/:id/comments
+// @access  Private (involved users only)
+exports.getComments = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+
+    // Access check: user must be in splits or be the creator
+    const isInvolved = expense.splits.some(
+      (s) => s.user.toString() === req.user._id.toString()
+    ) || expense.createdBy.toString() === req.user._id.toString();
+
+    if (!isInvolved) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const comments = await Comment.find({ expenseId: req.params.id })
+      .populate('author', 'name email')
+      .sort({ createdAt: 1 }); // old to new
+
+    res.json(comments);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+// @desc    Add a comment to an expense
+// @route   POST /api/expenses/:id/comments
+// @access  Private (involved users only)
+exports.addComment = async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({ message: 'Comment text is required' });
+    }
+    if (text.length > 500) {
+      return res.status(400).json({ message: 'Comment cannot be more than 500 characters' });
+    }
+
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+
+    // Access check: user must be in splits or be the creator
+    const isInvolved = expense.splits.some(
+      (s) => s.user.toString() === req.user._id.toString()
+    ) || expense.createdBy.toString() === req.user._id.toString();
+
+    if (!isInvolved) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const comment = await Comment.create({
+      expenseId: req.params.id,
+      author: req.user._id,
+      text: text.trim()
+    });
+
+    const populatedComment = await Comment.findById(comment._id)
+      .populate('author', 'name email');
+
+    // Create notifications for everyone involved in the split (including creator, but except the commenter themselves)
+    const participants = new Set();
+    participants.add(expense.createdBy.toString());
+    expense.splits.forEach(s => participants.add(s.user.toString()));
+    
+    // Remove the commenter
+    participants.delete(req.user._id.toString());
+
+    const notificationPromises = Array.from(participants).map(recipientId => {
+      return Notification.create({
+        recipient: recipientId,
+        sender: req.user._id,
+        type: 'expense_comment',
+        entityId: expense._id,
+        message: `${req.user.name} commented on "${expense.description}": "${text.length > 30 ? text.substring(0, 30) + '...' : text}"`
+      });
+    });
+
+    if (notificationPromises.length > 0) {
+      await Promise.all(notificationPromises).catch(err => console.error("Notification Error:", err));
+    }
+
+    res.status(201).json(populatedComment);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+// @desc    Delete a comment
+// @route   DELETE /api/expenses/:id/comments/:commentId
+// @access  Private (author only)
+exports.deleteComment = async (req, res) => {
+  try {
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    // Check if the comment belongs to the expense (for safety/consistency)
+    if (comment.expenseId.toString() !== req.params.id) {
+      return res.status(400).json({ message: 'Comment does not belong to this expense' });
+    }
+
+    // Check author
+    if (comment.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to delete this comment' });
+    }
+
+    await comment.deleteOne();
+    res.json({ message: 'Comment deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }

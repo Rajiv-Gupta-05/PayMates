@@ -9,6 +9,7 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { ExpenseService } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { CommentService } from '../../core/services/comment.service';
 
 @Component({
   selector: 'app-groups',
@@ -41,6 +42,11 @@ export class Groups implements OnInit, OnDestroy {
   // Expense detail drill-down inside group modal
   selectedExpense: any = null;
 
+  comments: any[] = [];
+  newCommentText = '';
+  isPostingComment = false;
+  isLoadingComments = false;
+
   readonly GROUP_TYPES = ['TRIP', 'HOME', 'COUPLE', 'OTHER'];
   readonly GROUP_EMOJIS: { [key: string]: string } = {
     TRIP: '🏖️', HOME: '🏠', COUPLE: '💑', OTHER: '👥'
@@ -60,6 +66,7 @@ export class Groups implements OnInit, OnDestroy {
     private expenseService: ExpenseService,
     private authService: AuthService,
     private toastService: ToastService,
+    private commentService: CommentService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef
   ) {
@@ -224,8 +231,14 @@ export class Groups implements OnInit, OnDestroy {
   }
 
   // ── Expense detail inside group modal ────────────────────────────
-  openExpense(expense: any): void { this.selectedExpense = expense; }
-  closeExpense(): void { this.selectedExpense = null; }
+  openExpense(expense: any): void {
+    this.selectedExpense = expense;
+    this.loadComments(expense._id);
+  }
+  closeExpense(): void {
+    this.selectedExpense = null;
+    this.comments = [];
+  }
 
   getMySplit(expense: any): any {
     return expense.splits?.find(
@@ -276,5 +289,63 @@ export class Groups implements OnInit, OnDestroy {
 
   getInitials(name: string): string {
     return (name || '?').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  loadComments(expenseId: string): void {
+    this.isLoadingComments = true;
+    this.comments = [];
+    this.cdr.detectChanges();
+
+    this.commentService.getComments(expenseId).subscribe({
+      next: (data) => {
+        this.comments = data;
+        this.isLoadingComments = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.toastService.show(err.error?.message || 'Could not load comments.', 'error');
+        this.isLoadingComments = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  postComment(): void {
+    if (!this.newCommentText || !this.newCommentText.trim()) return;
+    if (!this.selectedExpense) return;
+
+    this.isPostingComment = true;
+    const text = this.newCommentText.trim();
+    this.commentService.addComment(this.selectedExpense._id, text).subscribe({
+      next: (comment) => {
+        this.comments.push(comment);
+        this.newCommentText = '';
+        this.isPostingComment = false;
+        this.toastService.show('Comment posted!', 'success');
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.toastService.show(err.error?.message || 'Could not post comment.', 'error');
+        this.isPostingComment = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  deleteComment(commentId: string): void {
+    if (!this.selectedExpense) return;
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    this.commentService.deleteComment(this.selectedExpense._id, commentId).subscribe({
+      next: () => {
+        this.comments = this.comments.filter(c => c._id !== commentId);
+        this.toastService.show('Comment deleted.', 'success');
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.toastService.show(err.error?.message || 'Could not delete comment.', 'error');
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

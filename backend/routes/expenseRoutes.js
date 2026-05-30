@@ -7,6 +7,9 @@ const {
   getExpenseById,
   updateExpense,
   deleteExpense,
+  getComments,
+  addComment,
+  deleteComment,
 } = require('../controllers/expenseController');
 const { protect } = require('../middlewares/authMiddleware');
 
@@ -17,5 +20,10 @@ router.get('/:id', protect, getExpenseById);             // Get single expense
 router.post('/', protect, createExpense);                 // Create expense
 router.put('/:id', protect, updateExpense);               // Update expense
 router.delete('/:id', protect, deleteExpense);           // Delete expense
+
+// Comments sub-routes
+router.get('/:id/comments', protect, getComments);
+router.post('/:id/comments', protect, addComment);
+router.delete('/:id/comments/:commentId', protect, deleteComment);
 
 module.exports = router;
