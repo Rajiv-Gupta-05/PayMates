@@ -132,37 +132,46 @@
   </div>
 </div>
 
-<!-- Group Detail Modal -->
+<!-- ═══════════════════════════════════════════════════════
+     GROUP DETAIL MODAL
+════════════════════════════════════════════════════════ -->
 <div class="modal fade" id="groupDetailModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content glass-modal border-0" *ngIf="selectedGroup">
       <div class="modal-accent-bar"></div>
 
-      <!-- Header -->
-      <div class="modal-header border-0 pt-4 px-4">
-        <div class="d-flex align-items-center gap-3 flex-grow-1">
-          <div class="rounded-3 d-flex justify-content-center align-items-center fs-3 flex-shrink-0"
-               style="width:48px;height:48px;" [style.background]="getColor(selectedGroup.type)">
+      <!-- ── Header ── -->
+      <div class="modal-header border-0 px-4 pt-4 pb-2">
+        <div class="d-flex align-items-center gap-3 flex-grow-1 overflow-hidden">
+          <!-- Group emoji icon -->
+          <div class="gd-group-icon flex-shrink-0"
+               [style.background]="getColor(selectedGroup.type)">
             {{ getEmoji(selectedGroup.type) }}
           </div>
-          <div>
-            <h5 class="modal-title fw-bold mb-0">{{ selectedGroup.name }}</h5>
-            <small class="text-secondary d-block">{{ selectedGroup.members?.length }} members · {{ selectedGroup.type }}</small>
-            <small class="text-secondary d-block" style="font-size: 11px; opacity: 0.8; margin-top: 2px;">
-              Created by <span style="color: #adb5bd;">{{ isCreator(selectedGroup) ? 'You' : selectedGroup.createdBy?.name || 'Unknown' }}</span>
-            </small>
+          <div class="overflow-hidden">
+            <h5 class="fw-bold mb-1 text-truncate">{{ selectedGroup.name }}</h5>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="ed-chip ed-chip--neutral">
+                <i class="bi bi-people me-1"></i>{{ selectedGroup.members?.length }} members
+              </span>
+              <span class="ed-chip ed-chip--subtle">{{ selectedGroup.type }}</span>
+              <span class="ed-chip ed-chip--neutral" style="font-size:10px;opacity:0.7;">
+                by {{ isCreator(selectedGroup) ? 'You' : selectedGroup.createdBy?.name }}
+              </span>
+            </div>
           </div>
         </div>
-        <button type="button" class="btn-close btn-close-white" id="closeGroupDetailModal" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white ms-2 flex-shrink-0"
+                id="closeGroupDetailModal" data-bs-dismiss="modal"></button>
       </div>
 
-      <!-- Body -->
-      <div class="modal-body p-4">
+      <!-- ── Body ── -->
+      <div class="modal-body px-4 pb-4">
 
         <!-- Loading -->
         <div *ngIf="isLoadingDetail" class="text-center py-5">
-          <div class="spinner-border mb-3" style="color:#00ffcc;"></div>
-          <p class="text-secondary">Loading group details...</p>
+          <div class="spinner-border mb-2" style="color:#00ffcc;width:2rem;height:2rem;"></div>
+          <p class="text-secondary small m-0">Loading details…</p>
         </div>
 
         <!-- Error -->
@@ -170,232 +179,230 @@
           <i class="bi bi-exclamation-triangle me-2"></i>{{ detailError }}
         </div>
 
-        <!-- Content (two sections: Balances + Expenses) -->
+        <!-- ── Main content ── -->
         <ng-container *ngIf="!isLoadingDetail && !detailError && groupDetail">
 
-          <!-- ── Your Balance Banner ── -->
+          <!-- Stats row -->
           <div class="d-flex gap-3 mb-4">
-            <div class="flex-grow-1 p-3 rounded-3 text-center"
-                 style="background:rgba(0,255,204,0.05);border:1px solid rgba(0,255,204,0.12);">
-              <small class="text-secondary d-block">Your balance</small>
-              <span class="fw-bold fs-5" [style.color]="groupDetail.yourBalance >= 0 ? '#00ffcc' : '#ff6b6b'">
+            <div class="gd-stat-card flex-grow-1"
+                 [class.gd-stat-card--positive]="groupDetail.yourBalance >= 0"
+                 [class.gd-stat-card--negative]="groupDetail.yourBalance < 0">
+              <p class="gd-stat-label">Your Balance</p>
+              <p class="gd-stat-value"
+                 [style.color]="groupDetail.yourBalance >= 0 ? '#00ffcc' : '#ff6b6b'">
                 {{ groupDetail.yourBalance >= 0 ? '+' : '' }}₹{{ groupDetail.yourBalance | number:'1.2-2' }}
-              </span>
+              </p>
             </div>
-            <div class="flex-grow-1 p-3 rounded-3 text-center"
-                 style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
-              <small class="text-secondary d-block">Expenses</small>
-              <span class="fw-bold fs-5 text-light">{{ groupExpenses.length }}</span>
+            <div class="gd-stat-card flex-grow-1">
+              <p class="gd-stat-label">Total Expenses</p>
+              <p class="gd-stat-value text-white">{{ groupExpenses.length }}</p>
             </div>
           </div>
 
           <!-- ── Suggested Settlements ── -->
-          <h6 class="fw-bold text-secondary text-uppercase mb-3" style="font-size:11px;letter-spacing:1.5px;">
+          <p class="ed-section-label mb-2">
             <i class="bi bi-lightning-charge me-1"></i>Suggested Settlements
-          </h6>
+          </p>
+
           <div *ngIf="groupDetail.simplifiedDebts?.length === 0"
-               class="p-3 text-center text-secondary rounded-3 mb-4"
-               style="background:rgba(0,255,204,0.04);border:1px solid rgba(0,255,204,0.1);">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>All settled up! 🎉
+               class="gd-settled-banner mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Everyone is settled up!
           </div>
-          <div *ngFor="let debt of groupDetail.simplifiedDebts"
-               class="d-flex align-items-center gap-3 p-3 mb-2 rounded-3"
-               style="background:rgba(255,107,107,0.05);border:1px solid rgba(255,107,107,0.12);">
-            <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
-                 style="width:34px;height:34px;background:rgba(255,107,107,0.3);font-size:12px;">
-              {{ getInitials(debt.from?.name) }}
+
+          <div class="gd-debt-list mb-4" *ngIf="groupDetail.simplifiedDebts?.length > 0">
+            <div *ngFor="let debt of groupDetail.simplifiedDebts; let last = last"
+                 class="gd-debt-row" [class.gd-debt-row--last]="last">
+              <!-- Payer avatar -->
+              <div class="gd-debt-avatar gd-debt-avatar--payer">
+                {{ getInitials(debt.from?.name) }}
+              </div>
+              <span class="gd-debt-name">
+                {{ debt.from?._id?.toString() === currentUser?._id?.toString() ? 'You' : debt.from?.name }}
+              </span>
+              <i class="bi bi-arrow-right gd-debt-arrow"></i>
+              <span class="gd-debt-to">
+                {{ debt.to?._id?.toString() === currentUser?._id?.toString() ? 'You' : debt.to?.name }}
+              </span>
+              <span class="gd-debt-amount ms-auto">₹{{ debt.amount | number:'1.2-2' }}</span>
             </div>
-            <span class="fw-semibold" style="font-size:14px;">
-              {{ debt.from?._id?.toString()===currentUser?._id?.toString() ? 'You' : debt.from?.name }}
-            </span>
-            <i class="bi bi-arrow-right text-secondary"></i>
-            <span class="fw-semibold" style="color:#00ffcc;font-size:14px;">
-              {{ debt.to?._id?.toString()===currentUser?._id?.toString() ? 'You' : debt.to?.name }}
-            </span>
-            <span class="ms-auto fw-bold" style="color:#ff6b6b;">₹{{ debt.amount | number:'1.2-2' }}</span>
           </div>
 
           <!-- ── Member Balances ── -->
-          <h6 class="fw-bold text-secondary text-uppercase mb-3 mt-4" style="font-size:11px;letter-spacing:1.5px;">
+          <p class="ed-section-label mb-2">
             <i class="bi bi-people me-1"></i>Member Balances
-          </h6>
-          <div *ngFor="let m of groupDetail.memberBalances"
-               class="d-flex align-items-center gap-3 p-3 mb-2 rounded-3"
-               style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-            <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
-                 style="width:36px;height:36px;font-size:12px;"
-                 [style.background]="m.user?._id?.toString()===currentUser?._id?.toString() ? 'linear-gradient(135deg,#00ffcc,#007bff)' : 'rgba(255,255,255,0.15)'">
-              {{ getInitials(m.user.name) }}
+          </p>
+          <div class="ed-people-list mb-4">
+            <div *ngFor="let m of groupDetail.memberBalances; let last = last"
+                 class="ed-person-row" [class.ed-person-row--last]="last">
+              <div class="ed-avatar"
+                   [class.ed-avatar--me]="m.user?._id?.toString() === currentUser?._id?.toString()">
+                {{ getInitials(m.user.name) }}
+              </div>
+              <span class="ed-person-name flex-grow-1">
+                {{ m.user?._id?.toString() === currentUser?._id?.toString() ? 'You' : m.user.name }}
+              </span>
+              <span class="ed-net"
+                    [class.ed-net--positive]="m.netBalance > 0"
+                    [class.ed-net--negative]="m.netBalance < 0">
+                {{ m.netBalance >= 0 ? '+' : '' }}₹{{ m.netBalance | number:'1.2-2' }}
+                <small>{{ m.netBalance > 0 ? 'gets back' : m.netBalance < 0 ? 'owes' : 'even' }}</small>
+              </span>
             </div>
-            <span class="fw-semibold flex-grow-1" style="font-size:14px;">
-              {{ m.user?._id?.toString()===currentUser?._id?.toString() ? 'You' : m.user.name }}
-            </span>
-            <span class="fw-bold" [style.color]="m.netBalance >= 0 ? '#00ffcc' : '#ff6b6b'">
-              {{ m.netBalance >= 0 ? '+' : '' }}₹{{ m.netBalance | number:'1.2-2' }}
-            </span>
           </div>
 
-          <!-- ── Group Expenses List ── -->
-          <div class="border-top border-secondary border-opacity-25 mt-4 pt-4">
-            <h6 class="fw-bold text-secondary text-uppercase mb-3" style="font-size:11px;letter-spacing:1.5px;">
-              <i class="bi bi-receipt me-1"></i>Group Expenses
-            </h6>
+          <!-- ── Group Expenses ── -->
+          <hr class="ed-divider">
 
-            <div *ngIf="groupExpenses.length === 0" class="text-center py-3 text-secondary">
-              <i class="bi bi-receipt-cutoff d-block fs-2 mb-2 opacity-25"></i>
-              No expenses in this group yet.
+          <p class="ed-section-label mb-3">
+            <i class="bi bi-receipt me-1"></i>Group Expenses
+          </p>
+
+          <!-- Empty state -->
+          <div *ngIf="groupExpenses.length === 0" class="text-center py-4 text-secondary">
+            <i class="bi bi-receipt-cutoff d-block fs-2 mb-2 opacity-25"></i>
+            No expenses in this group yet.
+          </div>
+
+          <!-- Expense detail drill-down -->
+          <div *ngIf="selectedExpense" class="gd-expense-detail mb-3">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <button class="btn btn-sm rounded-pill px-3 ed-btn-edit" (click)="closeExpense()">
+                <i class="bi bi-chevron-left me-1"></i>Back
+              </button>
+              <span class="fw-semibold flex-grow-1 text-truncate">{{ selectedExpense.description }}</span>
+              <span class="text-secondary" style="font-size:13px;white-space:nowrap;">
+                ₹{{ selectedExpense.totalAmount | number:'1.2-2' }}
+              </span>
             </div>
 
-            <!-- Expense detail drill-down -->
-            <div *ngIf="selectedExpense" class="glass-card p-3 mb-3"
-                 style="border:1px solid rgba(0,255,204,0.15);">
-              <div class="d-flex align-items-center gap-2 mb-3">
-                <button class="btn btn-sm rounded-pill px-2"
-                        style="background:rgba(255,255,255,0.08);color:#adb5bd;font-size:12px;"
-                        (click)="closeExpense()">
-                  <i class="bi bi-chevron-left me-1"></i>Back
-                </button>
-                <span class="fw-bold flex-grow-1">{{ selectedExpense.description }}</span>
-                <span class="text-secondary" style="font-size:12px;">₹{{ selectedExpense.totalAmount | number:'1.2-2' }}</span>
-              </div>
-              <div *ngFor="let split of selectedExpense.splits; let last=last"
-                   class="d-flex align-items-center gap-3 py-2"
-                   [class.border-bottom]="!last"
-                   style="border-color:rgba(255,255,255,0.06) !important;">
-                <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
-                     style="width:32px;height:32px;font-size:11px;"
-                     [style.background]="split.user?._id?.toString()===currentUser?._id?.toString() ? 'linear-gradient(135deg,#00ffcc,#007bff)' : 'rgba(255,255,255,0.12)'">
+            <div class="ed-people-list mb-3">
+              <div *ngFor="let split of selectedExpense.splits; let last = last"
+                   class="ed-person-row" [class.ed-person-row--last]="last">
+                <div class="ed-avatar"
+                     [class.ed-avatar--me]="split.user?._id?.toString() === currentUser?._id?.toString()">
                   {{ getInitials(split.user?.name) }}
                 </div>
-                <span class="flex-grow-1" style="font-size:13px;">
-                  {{ split.user?._id?.toString()===currentUser?._id?.toString() ? 'You' : split.user?.name }}
-                  <span *ngIf="split.amountPaid > 0" style="color:#00ffcc;font-size:11px;"> · paid</span>
-                </span>
-                <span class="fw-semibold" style="font-size:13px;"
-                      [style.color]="(split.amountPaid-split.amountOwed)>0?'#00ffcc':(split.amountPaid-split.amountOwed)<0?'#ff6b6b':'#adb5bd'">
-                  {{ (split.amountPaid-split.amountOwed)>0?'+':'' }}₹{{ (split.amountPaid-split.amountOwed) | number:'1.2-2' }}
-                </span>
-              </div>
-              
-              <div class="mt-3 pt-3 border-top border-secondary border-opacity-25 d-flex justify-content-end">
-                <button class="btn btn-sm rounded-pill px-4"
-                        style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#fff;"
-                        (click)="editExpense(selectedExpense)"
-                        data-bs-toggle="modal" data-bs-target="#addExpenseModal">
-                  <i class="bi bi-pencil-square me-2"></i>Edit Expense
-                </button>
-              </div>
-
-              <!-- Comments Section -->
-              <hr class="my-3" style="border-color: rgba(255,255,255,0.1);">
-
-              <div class="comments-section">
-                <h6 class="fw-semibold text-secondary text-uppercase mb-3 d-flex align-items-center justify-content-between" style="font-size:11px;letter-spacing:1.5px;">
-                  <span>💬 Comments ({{ comments.length }})</span>
-                  <span *ngIf="isLoadingComments" class="spinner-border spinner-border-sm text-secondary" role="status"></span>
-                </h6>
-
-                <!-- Comments List -->
-                <div *ngIf="!isLoadingComments && comments.length === 0" class="text-center py-3 text-secondary opacity-75" style="font-size:12px;">
-                  No comments yet.
+                <div class="ed-person-info flex-grow-1">
+                  <p class="ed-person-name">
+                    {{ split.user?._id?.toString() === currentUser?._id?.toString() ? 'You' : split.user?.name }}
+                  </p>
+                  <p class="ed-person-sub">
+                    <span *ngIf="split.amountPaid > 0" class="ed-paid-tag">Paid ₹{{ split.amountPaid | number:'1.2-2' }}</span>
+                    Share: ₹{{ split.amountOwed | number:'1.2-2' }}
+                  </p>
                 </div>
+                <div class="ed-net"
+                     [class.ed-net--positive]="(split.amountPaid - split.amountOwed) > 0"
+                     [class.ed-net--negative]="(split.amountPaid - split.amountOwed) < 0">
+                  {{ (split.amountPaid - split.amountOwed) > 0 ? '+' : '' }}₹{{ (split.amountPaid - split.amountOwed) | number:'1.2-2' }}
+                  <small>{{ (split.amountPaid - split.amountOwed) > 0 ? 'gets back' : (split.amountPaid - split.amountOwed) < 0 ? 'owes' : 'even' }}</small>
+                </div>
+              </div>
+            </div>
 
-                <div *ngIf="comments.length > 0" class="d-flex flex-column gap-2 mb-3" style="max-height: 200px; overflow-y: auto; padding-right: 5px;">
-                  <div *ngFor="let comment of comments" class="d-flex gap-2 align-items-start">
-                    <!-- Avatar Circle -->
-                    <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
-                         style="width:28px;height:28px;font-size:10px;"
-                         [style.background]="comment.author?._id === currentUser?._id ? 'linear-gradient(135deg,#00ffcc,#007bff)' : 'rgba(255,255,255,0.15)'">
-                      {{ getInitials(comment.author?.name) }}
-                    </div>
-                    
-                    <!-- Content Bubble -->
-                    <div class="flex-grow-1 rounded-3 position-relative" 
-                         style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); min-width: 0; padding: 6px 10px; border-radius: 12px; padding-right: 28px;">
-                      <div class="d-flex justify-content-between align-items-center mb-1 gap-2">
-                        <strong class="text-light text-truncate" style="font-size:11px; max-width: 100px;">
-                          {{ comment.author?._id === currentUser?._id ? 'You' : comment.author?.name }}
-                        </strong>
-                        <span class="text-secondary flex-shrink-0" style="font-size:9px;">
-                          {{ comment.createdAt | date:'shortTime' }}
-                        </span>
-                      </div>
-                      <p class="m-0 text-white-50" style="font-size:12px; line-height: 1.3; word-break: break-word; text-align: left;">
-                        {{ comment.text }}
-                      </p>
+            <div class="d-flex justify-content-end mb-3">
+              <button class="btn btn-sm ed-btn-edit rounded-pill px-4"
+                      (click)="editExpense(selectedExpense)"
+                      data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+                <i class="bi bi-pencil me-1"></i>Edit Expense
+              </button>
+            </div>
 
-                      <!-- Delete button (absolute positioned / floats right) -->
-                      <button *ngIf="comment.author?._id === currentUser?._id" 
-                              class="btn btn-link p-0 text-secondary border-0 position-absolute end-0 top-0 mt-1 me-1.5" 
-                              style="font-size: 13px; text-decoration: none; line-height: 1;"
-                              (click)="deleteComment(comment._id)">
-                        <i class="bi bi-x"></i>
-                      </button>
-                    </div>
+            <!-- Comments -->
+            <hr class="ed-divider">
+            <p class="ed-section-label d-flex align-items-center justify-content-between mb-3">
+              <span>💬 Comments ({{ comments.length }})</span>
+              <span *ngIf="isLoadingComments" class="spinner-border spinner-border-sm text-secondary" role="status"></span>
+            </p>
+
+            <div *ngIf="!isLoadingComments && comments.length === 0"
+                 class="text-center py-2 text-secondary" style="font-size:13px;opacity:0.7;">
+              No comments yet. Start the conversation!
+            </div>
+
+            <div *ngIf="comments.length > 0" class="d-flex flex-column gap-2 mb-3"
+                 style="max-height:180px;overflow-y:auto;padding-right:4px;">
+              <div *ngFor="let comment of comments" class="d-flex gap-2 align-items-start">
+                <div class="ed-avatar ed-avatar--sm"
+                     [class.ed-avatar--me]="comment.author?._id === currentUser?._id">
+                  {{ getInitials(comment.author?.name) }}
+                </div>
+                <div class="ed-comment-bubble flex-grow-1 position-relative">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong style="font-size:11px;">{{ comment.author?._id === currentUser?._id ? 'You' : comment.author?.name }}</strong>
+                    <span class="text-secondary" style="font-size:10px;">{{ comment.createdAt | date:'shortTime' }}</span>
                   </div>
-                </div>
-
-                <!-- Add Comment Input -->
-                <div class="d-flex gap-2 align-items-center mt-2">
-                  <input type="text" 
-                         class="form-control glass-input py-1.5" 
-                         placeholder="Write a comment..." 
-                         [(ngModel)]="newCommentText" 
-                         (keyup.enter)="postComment()"
-                         [disabled]="isPostingComment"
-                         style="font-size:12px; background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #fff; border-radius: 20px;">
-                  <button class="btn btn-sm btn-gradient py-1.5 px-3 flex-shrink-0" 
-                          [disabled]="!newCommentText.trim() || isPostingComment"
-                          (click)="postComment()"
-                          style="border-radius: 20px; font-size:12px; min-width: 50px;">
-                    <span *ngIf="!isPostingComment">Post</span>
-                    <span *ngIf="isPostingComment" class="spinner-border spinner-border-sm" role="status"></span>
+                  <p class="m-0" style="font-size:12px;color:rgba(255,255,255,0.65);word-break:break-word;">{{ comment.text }}</p>
+                  <button *ngIf="comment.author?._id === currentUser?._id"
+                          class="btn btn-link p-0 text-secondary border-0 position-absolute end-0 top-0 mt-1 me-2"
+                          style="font-size:13px;text-decoration:none;"
+                          (click)="deleteComment(comment._id)">
+                    <i class="bi bi-x"></i>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Expense rows -->
-            <div *ngIf="!selectedExpense" class="glass-card p-0 overflow-hidden">
-              <div *ngFor="let exp of groupExpenses; let last=last"
-                   class="d-flex align-items-center gap-3 p-3 transition-hover"
-                   style="cursor:pointer;"
-                   [class.border-bottom]="!last"
-                   style="border-color:rgba(255,255,255,0.07) !important;"
-                   (click)="openExpense(exp)">
-                <div class="rounded-circle d-flex justify-content-center align-items-center flex-shrink-0"
-                     style="width:38px;height:38px;"
-                     [style.background]="getMyNet(exp)>=0?'rgba(0,255,204,0.1)':'rgba(255,107,107,0.1)'"
-                     [style.color]="getMyNet(exp)>=0?'#00ffcc':'#ff6b6b'">
-                  <i class="bi bi-receipt" style="font-size:14px;"></i>
-                </div>
-                <div class="flex-grow-1 overflow-hidden">
-                  <p class="m-0 fw-semibold text-truncate" style="font-size:14px;">{{ exp.description }}</p>
-                  <small class="text-secondary">
-                    {{ (exp.updatedAt || exp.createdAt) | date:'d MMM y' }}
-                    <span *ngIf="isEdited(exp)" 
-                          class="badge rounded-pill d-inline-flex align-items-center ms-1 tag-edited" 
-                          style="background:rgba(255,255,255,0.06);color:#adb5bd;font-size:9px;letter-spacing:0.5px;padding:3px 7px;border:1px solid rgba(255,255,255,0.1);font-weight:600;vertical-align:text-bottom;">
-                      <i class="bi bi-pencil-fill me-1" style="font-size:8px;opacity:0.7;"></i>Edited
-                    </span>
-                    · {{ exp.createdBy?.name }}
-                  </small>
-                </div>
-                <div class="text-end flex-shrink-0">
-                  <p class="m-0 fw-bold" style="font-size:14px;">₹{{ exp.totalAmount | number:'1.2-2' }}</p>
-                  <small [style.color]="getMyNet(exp)>0?'#00ffcc':getMyNet(exp)<0?'#ff6b6b':'#adb5bd'" style="font-size:11px;">
-                    {{ getMyNet(exp)>0?'you lent ₹'+abs(getMyNet(exp)).toFixed(2):getMyNet(exp)<0?'you owe ₹'+abs(getMyNet(exp)).toFixed(2):'not split with you' }}
-                  </small>
-                </div>
-                <i class="bi bi-chevron-right text-secondary" style="font-size:12px;"></i>
-              </div>
+            <div class="d-flex gap-2 align-items-center">
+              <input type="text" class="form-control glass-input py-2"
+                     placeholder="Write a comment…"
+                     [(ngModel)]="newCommentText"
+                     (keyup.enter)="postComment()"
+                     [disabled]="isPostingComment"
+                     style="font-size:12px;border-radius:20px;">
+              <button class="btn btn-sm btn-gradient py-2 px-3 flex-shrink-0"
+                      [disabled]="!newCommentText.trim() || isPostingComment"
+                      (click)="postComment()"
+                      style="border-radius:20px;font-size:12px;min-width:55px;">
+                <span *ngIf="!isPostingComment">Post</span>
+                <span *ngIf="isPostingComment" class="spinner-border spinner-border-sm" role="status"></span>
+              </button>
             </div>
           </div>
 
-          <!-- Delete Group (creator only) -->
-          <div *ngIf="isCreator(selectedGroup)" class="border-top border-secondary border-opacity-25 mt-4 pt-4">
-            <button class="btn btn-sm btn-outline-danger rounded-pill px-4" (click)="deleteGroup(selectedGroup._id)">
-              <i class="bi bi-trash me-2"></i>Delete Group
+          <!-- Expense list rows -->
+          <div *ngIf="!selectedExpense && groupExpenses.length > 0" class="ed-people-list mb-4">
+            <div *ngFor="let exp of groupExpenses; let last = last"
+                 class="gd-expense-row" [class.gd-expense-row--last]="last"
+                 (click)="openExpense(exp)">
+
+              <!-- Receipt icon -->
+              <div class="gd-expense-icon"
+                   [style.background]="getMyNet(exp) >= 0 ? 'rgba(0,255,204,0.1)' : 'rgba(255,107,107,0.1)'"
+                   [style.color]="getMyNet(exp) >= 0 ? '#00ffcc' : '#ff6b6b'">
+                <i class="bi bi-receipt"></i>
+              </div>
+
+              <!-- Name + date + added by -->
+              <div class="ed-person-info flex-grow-1">
+                <p class="ed-person-name">{{ exp.description }}</p>
+                <p class="ed-person-sub">
+                  {{ (exp.updatedAt || exp.createdAt) | date:'d MMM y' }}
+                  <span *ngIf="isEdited(exp)" class="ed-paid-tag" style="background:rgba(255,255,255,0.06);color:#adb5bd;border-color:rgba(255,255,255,0.12);">
+                    <i class="bi bi-pencil-fill" style="font-size:8px;"></i> Edited
+                  </span>
+                  · {{ exp.createdBy?.name }}
+                </p>
+              </div>
+
+              <!-- Amount + your share -->
+              <div class="text-end flex-shrink-0">
+                <p class="ed-person-name m-0">₹{{ exp.totalAmount | number:'1.2-2' }}</p>
+                <small [style.color]="getMyNet(exp) > 0 ? '#00ffcc' : getMyNet(exp) < 0 ? '#ff6b6b' : '#adb5bd'"
+                       style="font-size:11px;">
+                  {{ getMyNet(exp) > 0 ? 'you lent ₹' + abs(getMyNet(exp)).toFixed(2) : getMyNet(exp) < 0 ? 'you owe ₹' + abs(getMyNet(exp)).toFixed(2) : 'not split with you' }}
+                </small>
+              </div>
+
+              <i class="bi bi-chevron-right text-secondary" style="font-size:11px;flex-shrink:0;"></i>
+            </div>
+          </div>
+
+          <!-- Delete Group -->
+          <div *ngIf="isCreator(selectedGroup)" class="mt-2">
+            <button class="btn btn-sm ed-btn-delete rounded-pill px-4" (click)="deleteGroup(selectedGroup._id)">
+              <i class="bi bi-trash me-1"></i>Delete Group
             </button>
           </div>
 
