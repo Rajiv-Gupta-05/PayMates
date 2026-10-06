@@ -2,6 +2,7 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,6 +27,21 @@ export class AuthService {
         if (response._id) this.saveUser(response);
       })
     );
+  }
+
+  // Verifies Google ID token on the backend and logs in / registers the user
+  googleLogin(idToken: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/google`, { idToken }).pipe(
+      tap((response: any) => {
+        if (response.token) this.saveToken(response.token);
+        if (response._id) this.saveUser(response);
+      })
+    );
+  }
+
+  // Returns the Google OAuth Client ID from environment config
+  getGoogleClientId(): string {
+    return environment.googleClientId;
   }
 
   private saveToken(token: string): void {

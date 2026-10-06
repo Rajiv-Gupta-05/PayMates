@@ -71,8 +71,8 @@ exports.createExpense = async (req, res) => {
     });
 
     const populated = await Expense.findById(expense._id)
-      .populate('createdBy', 'name email')
-      .populate('splits.user', 'name email')
+      .populate('createdBy', 'name email avatar')
+      .populate('splits.user', 'name email avatar')
       .populate('groupId', 'name');
 
     // Create notifications for everyone involved in the split (except the creator)
@@ -153,8 +153,8 @@ exports.updateExpense = async (req, res) => {
     await expense.save();
 
     const populated = await Expense.findById(expense._id)
-      .populate('createdBy', 'name email')
-      .populate('splits.user', 'name email')
+      .populate('createdBy', 'name email avatar')
+      .populate('splits.user', 'name email avatar')
       .populate('groupId', 'name');
 
     res.json(populated);
@@ -183,8 +183,8 @@ exports.getUserExpenses = async (req, res) => {
         { groupId: { $in: groupIds } }
       ]
     })
-      .populate('createdBy', 'name email')
-      .populate('splits.user', 'name email')
+      .populate('createdBy', 'name email avatar')
+      .populate('splits.user', 'name email avatar')
       .populate('groupId', 'name')
       .sort({ createdAt: -1 });
 
@@ -210,8 +210,8 @@ exports.getGroupExpenses = async (req, res) => {
     }
 
     const expenses = await Expense.find({ groupId: req.params.groupId })
-      .populate('createdBy', 'name email')
-      .populate('splits.user', 'name email')
+      .populate('createdBy', 'name email avatar')
+      .populate('splits.user', 'name email avatar')
       .sort({ createdAt: -1 });
 
     res.json(expenses);
@@ -226,8 +226,8 @@ exports.getGroupExpenses = async (req, res) => {
 exports.getExpenseById = async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id)
-      .populate('createdBy', 'name email')
-      .populate('splits.user', 'name email')
+      .populate('createdBy', 'name email avatar')
+      .populate('splits.user', 'name email avatar')
       .populate('groupId', 'name');
 
     if (!expense) {
@@ -290,7 +290,7 @@ exports.getComments = async (req, res) => {
     }
 
     const comments = await Comment.find({ expenseId: req.params.id })
-      .populate('author', 'name email')
+      .populate('author', 'name email avatar')
       .sort({ createdAt: 1 }); // old to new
 
     res.json(comments);
@@ -333,7 +333,7 @@ exports.addComment = async (req, res) => {
     });
 
     const populatedComment = await Comment.findById(comment._id)
-      .populate('author', 'name email');
+      .populate('author', 'name email avatar');
 
     // Create notifications for everyone involved in the split (including creator, but except the commenter themselves)
     const participants = new Set();

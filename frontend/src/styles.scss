@@ -364,6 +364,19 @@ button:disabled, .btn:disabled {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;   // Needed for absolute img child
+  overflow: hidden;     // Clips img to the circle without needing border-radius on img
+
+  // Avatar photo: sits on top of the initials span
+  // Removed by (error) handler if the URL fails to load
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
 
   &.ed-avatar--me {
     background: linear-gradient(135deg, #00ffcc, #007bff);

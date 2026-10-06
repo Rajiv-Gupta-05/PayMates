@@ -28,60 +28,65 @@
   100% { transform: rotate(360deg); }
 }
 
-/* ─── Google Coming Soon Premium Toast ─────────────────────────────────────── */
-.coming-soon-toast {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10000;
-  width: 90%;
-  max-width: 400px;
-  background: rgba(15, 22, 41, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 255, 204, 0.25);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 
-              0 0 30px rgba(0, 255, 204, 0.15);
-  border-radius: 16px;
-  padding: 16px 20px;
-  animation: slideDownFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  
-  .toast-icon-bg {
-    width: 42px;
-    height: 42px;
-    background: linear-gradient(135deg, #00ffcc, #0099ff);
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+/* ─── Google Sign-In Button ────────────────────────────────────────────────── */
+.google-btn-wrapper {
+  position: relative;
+  width: 100%;
+  height: 44px; // Fixed height so the absolute overlay matches exactly
+
+  // The visible styled button — decorative, non-interactive
+  .google-btn-visual {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    background: transparent;
   }
 
-  .toast-content {
-    h6 {
-      font-size: 15px;
-      letter-spacing: 0.3px;
+  // GIS rendered button container — sits on top, nearly transparent
+  // opacity: 0.001 (not 0!) ensures the iframe inside receives pointer events
+  // in all browsers. The visual button below shows through.
+  #gis-btn-container {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    opacity: 0.001;
+    overflow: hidden;
+    cursor: pointer;
+
+    // GIS renders either an iframe or a div[role="button"] here
+    iframe {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 44px;
+      border: none !important;
     }
-    small {
-      font-size: 12px;
+
+    div[role="button"] {
+      width: 100% !important;
+      height: 100% !important;
+      cursor: pointer !important;
     }
   }
 
-  .btn-close {
-    opacity: 0.5;
-    transition: opacity 0.2s;
-    &:hover {
-      opacity: 1;
-    }
+  // Hover / active glow applied on the whole wrapper —
+  // affects the visual button underneath
+  &:hover .google-btn-visual {
+    background: rgba(66, 133, 244, 0.12);
+    border-color: rgba(66, 133, 244, 0.5);
+    box-shadow: 0 0 16px rgba(66, 133, 244, 0.25);
   }
-}
 
-@keyframes slideDownFadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
+  &:active .google-btn-visual {
+    background: rgba(66, 133, 244, 0.2);
   }
 }
 

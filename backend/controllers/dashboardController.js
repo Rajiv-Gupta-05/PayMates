@@ -45,10 +45,10 @@ exports.getFriendBalances = async (req, res) => {
       (id) => Math.abs(balanceMap[id]) > 0.005
     );
 
-    const friends = await User.find({ _id: { $in: friendIds } }).select('name email');
+    const friends = await User.find({ _id: { $in: friendIds } }).select('name email avatar');
 
     const result = friends.map((friend) => ({
-      friend: { _id: friend._id, name: friend.name, email: friend.email },
+      friend: { _id: friend._id, name: friend.name, email: friend.email, avatar: friend.avatar },
       balance: parseFloat((balanceMap[friend._id.toString()] || 0).toFixed(2)),
       // positive = friend owes you, negative = you owe friend
     }));
@@ -70,7 +70,7 @@ exports.getGroupBalanceSummary = async (req, res) => {
     const { groupId } = req.params;
     const userId = req.user._id;
 
-    const group = await Group.findById(groupId).populate('members', 'name email');
+    const group = await Group.findById(groupId).populate('members', 'name email avatar');
     if (!group) {
       return res.status(404).json({ message: 'Group not found' });
     }
@@ -109,14 +109,14 @@ exports.getGroupBalanceSummary = async (req, res) => {
     group.members.forEach((m) => { memberMap[m._id.toString()] = m; });
 
     const simplifiedDebts = rawDebts.map((d) => ({
-      from: memberMap[d.from] ? { _id: memberMap[d.from]._id, name: memberMap[d.from].name } : d.from,
-      to: memberMap[d.to] ? { _id: memberMap[d.to]._id, name: memberMap[d.to].name } : d.to,
+      from: memberMap[d.from] ? { _id: memberMap[d.from]._id, name: memberMap[d.from].name, avatar: memberMap[d.from].avatar } : d.from,
+      to: memberMap[d.to] ? { _id: memberMap[d.to]._id, name: memberMap[d.to].name, avatar: memberMap[d.to].avatar } : d.to,
       amount: d.amount,
     }));
 
     // Per-member breakdown
     const memberBalances = group.members.map((member) => ({
-      user: { _id: member._id, name: member.name, email: member.email },
+      user: { _id: member._id, name: member.name, email: member.email, avatar: member.avatar },
       netBalance: groupBalanceMap[member._id.toString()] || 0,
     }));
 

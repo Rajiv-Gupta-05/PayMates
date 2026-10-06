@@ -17,6 +17,12 @@ app.use(cors({
   origin: 'http://localhost:4200', 
   credentials: true
 }));
+// Allow Google OAuth popup postMessage (disable COOP for dev)
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  next();
+});
 app.use(express.json()); // Allows the server to accept JSON data in the request body
 
 app.use('/api/auth', require('./routes/authRoutes'));

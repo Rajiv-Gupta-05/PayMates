@@ -215,7 +215,8 @@
                  class="gd-debt-row" [class.gd-debt-row--last]="last">
               <!-- Payer avatar -->
               <div class="gd-debt-avatar gd-debt-avatar--payer">
-                {{ getInitials(debt.from?.name) }}
+                <img *ngIf="debt.from?.avatar" [src]="debt.from.avatar" [alt]="debt.from?.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <span *ngIf="!debt.from?.avatar">{{ getInitials(debt.from?.name) }}</span>
               </div>
               <span class="gd-debt-name">
                 {{ debt.from?._id?.toString() === currentUser?._id?.toString() ? 'You' : debt.from?.name }}
@@ -237,7 +238,8 @@
                  class="ed-person-row" [class.ed-person-row--last]="last">
               <div class="ed-avatar"
                    [class.ed-avatar--me]="m.user?._id?.toString() === currentUser?._id?.toString()">
-                {{ getInitials(m.user.name) }}
+                <img *ngIf="m.user?.avatar" [src]="m.user.avatar" [alt]="m.user.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <span *ngIf="!m.user?.avatar">{{ getInitials(m.user.name) }}</span>
               </div>
               <span class="ed-person-name flex-grow-1">
                 {{ m.user?._id?.toString() === currentUser?._id?.toString() ? 'You' : m.user.name }}
@@ -281,7 +283,8 @@
                    class="ed-person-row" [class.ed-person-row--last]="last">
                 <div class="ed-avatar"
                      [class.ed-avatar--me]="split.user?._id?.toString() === currentUser?._id?.toString()">
-                  {{ getInitials(split.user?.name) }}
+                  <img *ngIf="split.user?.avatar" [src]="split.user.avatar" [alt]="split.user?.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  <span *ngIf="!split.user?.avatar">{{ getInitials(split.user?.name) }}</span>
                 </div>
                 <div class="ed-person-info flex-grow-1">
                   <p class="ed-person-name">
@@ -326,7 +329,8 @@
               <div *ngFor="let comment of comments" class="d-flex gap-2 align-items-start">
                 <div class="ed-avatar ed-avatar--sm"
                      [class.ed-avatar--me]="comment.author?._id === currentUser?._id">
-                  {{ getInitials(comment.author?.name) }}
+                  <img *ngIf="comment.author?.avatar" [src]="comment.author.avatar" [alt]="comment.author?.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  <span *ngIf="!comment.author?.avatar">{{ getInitials(comment.author?.name) }}</span>
                 </div>
                 <div class="ed-comment-bubble flex-grow-1 position-relative">
                   <div class="d-flex justify-content-between align-items-center mb-1">

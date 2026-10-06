@@ -63,7 +63,7 @@ exports.createGroup = async (req, res) => {
       await Promise.all(users.map(u => u.save()));
     }
 
-    const populated = await group.populate('members', 'name email');
+    const populated = await group.populate('members', 'name email avatar');
 
     // Create notifications for all members (except creator)
     const notificationPromises = groupMembers
@@ -94,8 +94,8 @@ exports.createGroup = async (req, res) => {
 exports.getGroups = async (req, res) => {
   try {
     const groups = await Group.find({ members: req.user._id })
-      .populate('members', 'name email')
-      .populate('createdBy', 'name email')
+      .populate('members', 'name email avatar')
+      .populate('createdBy', 'name email avatar')
       .sort({ createdAt: -1 });
 
     res.json(groups);
@@ -110,8 +110,8 @@ exports.getGroups = async (req, res) => {
 exports.getGroupById = async (req, res) => {
   try {
     const group = await Group.findById(req.params.id)
-      .populate('members', 'name email')
-      .populate('createdBy', 'name email');
+      .populate('members', 'name email avatar')
+      .populate('createdBy', 'name email avatar');
 
     if (!group) {
       return res.status(404).json({ message: 'Group not found' });
@@ -149,7 +149,7 @@ exports.updateGroup = async (req, res) => {
     if (type) group.type = type;
 
     await group.save();
-    const populated = await group.populate('members', 'name email');
+    const populated = await group.populate('members', 'name email avatar');
     res.json(populated);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
@@ -236,7 +236,7 @@ exports.addGroupMember = async (req, res) => {
       }
     }
 
-    const populated = await group.populate('members', 'name email');
+    const populated = await group.populate('members', 'name email avatar');
     res.json(populated);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
@@ -271,7 +271,7 @@ exports.removeGroupMember = async (req, res) => {
     group.members = group.members.filter((m) => m.toString() !== memberId);
     await group.save();
 
-    const populated = await group.populate('members', 'name email');
+    const populated = await group.populate('members', 'name email avatar');
     res.json(populated);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });

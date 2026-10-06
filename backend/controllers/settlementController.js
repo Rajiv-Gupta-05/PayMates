@@ -51,8 +51,8 @@ exports.addSettlement = async (req, res) => {
     });
 
     const populated = await Settlement.findById(settlement._id)
-      .populate('payer', 'name email')
-      .populate('payee', 'name email')
+      .populate('payer', 'name email avatar')
+      .populate('payee', 'name email avatar')
       .populate('groupId', 'name');
 
     // Create notification for the other user
@@ -79,8 +79,8 @@ exports.getUserSettlements = async (req, res) => {
     const settlements = await Settlement.find({
       $or: [{ payer: req.user._id }, { payee: req.user._id }],
     })
-      .populate('payer', 'name email')
-      .populate('payee', 'name email')
+      .populate('payer', 'name email avatar')
+      .populate('payee', 'name email avatar')
       .populate('groupId', 'name')
       .sort({ createdAt: -1 });
 
@@ -106,8 +106,8 @@ exports.getGroupSettlements = async (req, res) => {
     }
 
     const settlements = await Settlement.find({ groupId: req.params.groupId })
-      .populate('payer', 'name email')
-      .populate('payee', 'name email')
+      .populate('payer', 'name email avatar')
+      .populate('payee', 'name email avatar')
       .sort({ createdAt: -1 });
 
     res.json(settlements);

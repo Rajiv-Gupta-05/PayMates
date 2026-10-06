@@ -14,8 +14,12 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Please add a password'],
-    minlength: 6
+    minlength: 6,
+    default: null
+  },
+  googleId: {
+    type: String,
+    default: null
   },
   default_currency: {
     type: String,
@@ -39,16 +43,18 @@ const userSchema = new mongoose.Schema({
 
 // Pre-save hook: Hash the password before saving to the database
 userSchema.pre('save', async function () {
-  // Only hash the password if it has been modified (or is new)
-  if (!this.isModified('password')) {
-    return; // <-- FIX: Simply return instead of calling next()
+  // Skip hashing if no password (Google OAuth users) or password not modified
+  if (!this.password || !this.isModified('password')) {
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Method to compare the entered password with the hashed password in the database
+// Method to compare the entered password with the hashed password in the database.
+// Returns false (never throws) when no password is set (e.g. Google SSO accounts).
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.password) return false; // Google-only account — no password stored
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

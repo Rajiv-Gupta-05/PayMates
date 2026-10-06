@@ -24,8 +24,9 @@
         <a routerLink="/friends" class="btn-back d-flex align-items-center justify-content-center rounded-circle text-light text-decoration-none">
           <i class="bi bi-arrow-left"></i>
         </a>
-        <div class="fd-avatar rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0">
-          {{ getInitials(friend.name) }}
+        <div class="fd-avatar rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0" style="overflow:hidden;">
+          <img *ngIf="friend.avatar" [src]="friend.avatar" [alt]="friend.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+          <span *ngIf="!friend.avatar">{{ getInitials(friend.name) }}</span>
         </div>
         <div>
           <h2 class="fw-bold mb-0">{{ friend.name }}</h2>
@@ -209,7 +210,8 @@
 
             <div class="ed-avatar"
                  [class.ed-avatar--me]="split.user?._id?.toString() === currentUser?._id?.toString()">
-              {{ getInitials(split.user?.name) }}
+              <img *ngIf="split.user?.avatar" [src]="split.user.avatar" [alt]="split.user?.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+              <span *ngIf="!split.user?.avatar">{{ getInitials(split.user?.name) }}</span>
             </div>
 
             <div class="ed-person-info flex-grow-1">
@@ -313,7 +315,8 @@
         <div class="sd-flow-card mb-4">
           <div class="sd-flow-person">
             <div class="sd-flow-avatar sd-flow-avatar--payer">
-              {{ getInitials(selectedSettlement.payer?.name) }}
+              <img *ngIf="selectedSettlement.payer?.avatar" [src]="selectedSettlement.payer.avatar" [alt]="selectedSettlement.payer?.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+              <span *ngIf="!selectedSettlement.payer?.avatar">{{ getInitials(selectedSettlement.payer?.name) }}</span>
             </div>
             <p class="sd-flow-name">{{ selectedSettlement.payer?._id?.toString() === currentUser?._id?.toString() ? 'You' : selectedSettlement.payer?.name }}</p>
             <small class="text-secondary">paid</small>
@@ -326,7 +329,8 @@
 
           <div class="sd-flow-person">
             <div class="sd-flow-avatar sd-flow-avatar--payee">
-              {{ getInitials(selectedSettlement.payee?.name) }}
+              <img *ngIf="selectedSettlement.payee?.avatar" [src]="selectedSettlement.payee.avatar" [alt]="selectedSettlement.payee?.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+              <span *ngIf="!selectedSettlement.payee?.avatar">{{ getInitials(selectedSettlement.payee?.name) }}</span>
             </div>
             <p class="sd-flow-name">{{ selectedSettlement.payee?._id?.toString() === currentUser?._id?.toString() ? 'You' : selectedSettlement.payee?.name }}</p>
             <small class="text-secondary">received</small>
