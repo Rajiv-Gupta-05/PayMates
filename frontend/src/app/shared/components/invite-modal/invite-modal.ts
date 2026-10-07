@@ -30,6 +30,13 @@ export class InviteModal implements OnInit {
   emailTags: string[] = [];
   emailInputTemp = '';
 
+  // ─── WhatsApp ─────────────────────────────────────────────────────────────
+  waPhoneInput = '';
+  waCopied = false;
+
+  /** Base app URL used in WA messages (production should replace with real domain) */
+  private readonly APP_URL = window.location.origin;
+
   constructor(
     private inviteService: InviteService,
     private cdr: ChangeDetectorRef
@@ -160,6 +167,44 @@ export class InviteModal implements OnInit {
     });
   }
 
+  /** Constructs the wa.me URL with the current message/phone */
+  buildWhatsAppLink(): string {
+    const msg = this.buildWaMessage();
+    const phone = this.sanitizePhone(this.waPhoneInput);
+    const encoded = encodeURIComponent(msg);
+    return phone
+      ? `https://wa.me/${phone}?text=${encoded}`
+      : `https://wa.me/?text=${encoded}`;
+  }
+
+  shareViaWhatsApp(): void {
+    window.open(this.buildWhatsAppLink(), '_blank', 'noopener,noreferrer');
+  }
+
+  copyWhatsAppLink(): void {
+    navigator.clipboard.writeText(this.buildWhatsAppLink()).then(() => {
+      this.waCopied = true;
+      this.cdr.detectChanges();
+      setTimeout(() => { this.waCopied = false; this.cdr.detectChanges(); }, 2500);
+    });
+  }
+
+  private buildWaMessage(): string {
+    const custom = this.personalMessage.trim();
+    const base = custom
+      ? `${custom}\n\n`
+      : `Hey! I've been using PayMates to split expenses with friends — no more awkward money conversations! 🎉\n\n`;
+    return `${base}Join me on PayMates 👉 ${this.APP_URL}`;
+  }
+
+  private sanitizePhone(raw: string): string {
+    // Strip all non-digits; prepend country code 91 if 10-digit Indian number
+    const digits = raw.replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.length === 10) return `91${digits}`;
+    return digits;
+  }
+
   closeModal(): void {
     this.closed.emit();
     this.reset();
@@ -169,6 +214,8 @@ export class InviteModal implements OnInit {
     this.emailTags = [];
     this.emailInputTemp = '';
     this.personalMessage = '';
+    this.waPhoneInput = '';
+    this.waCopied = false;
     this.clearMessages();
     this.isSending = false;
     this.lastError = '';

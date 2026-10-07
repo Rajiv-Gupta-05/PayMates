@@ -1,16 +1,20 @@
 const nodemailer = require('nodemailer');
 
+// .env uses EMAIL_USER / EMAIL_PASSWORD; fallback to SMTP_USER / SMTP_PASS
+const SMTP_USER = process.env.EMAIL_USER || process.env.SMTP_USER || '';
+const SMTP_PASS = process.env.EMAIL_PASSWORD || process.env.SMTP_PASS || '';
+
 // ─── Validate SMTP config at startup ─────────────────────────────────────────
 const smtpReady =
-  process.env.SMTP_USER &&
-  process.env.SMTP_PASS &&
-  process.env.SMTP_USER !== 'your-gmail@gmail.com' &&
-  process.env.SMTP_PASS !== 'your-16-char-app-password';
+  SMTP_USER &&
+  SMTP_PASS &&
+  SMTP_USER !== 'your-gmail@gmail.com' &&
+  SMTP_PASS !== 'your-16-char-app-password';
 
 if (!smtpReady) {
   console.warn(`
 ⚠️  INVITE (Email): Gmail SMTP is NOT configured.
-    Set SMTP_USER and SMTP_PASS in backend/.env
+    Set EMAIL_USER and EMAIL_PASSWORD in backend/.env
     Get an App Password → https://myaccount.google.com/apppasswords
   `);
 }
@@ -122,13 +126,13 @@ exports.sendInvite = async (req, res) => {
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
     });
 
     await transporter.verify();
 
     const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM || `"PayMates" <${process.env.SMTP_USER}>`,
+      from: process.env.SMTP_FROM || `"PayMates" <${SMTP_USER}>`,
       to: value.trim(),
       subject: `${senderName} invited you to join PayMates! 🎉`,
       html: buildEmailHTML(senderName, message?.trim() || '', registerLink),
