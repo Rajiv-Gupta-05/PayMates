@@ -128,7 +128,7 @@ exports.googleLogin = async (req, res) => {
       if (user) {
         // Link existing account to Google
         user.googleId = googleId;
-        if (!user.avatar && picture) user.avatar = picture;
+        if (picture) user.avatar = picture;
         await user.save();
       } else {
         // Create a brand-new Google user (no password)
@@ -139,6 +139,12 @@ exports.googleLogin = async (req, res) => {
           avatar: picture || '',
           password: null,
         });
+      }
+    } else {
+      // Existing Google user logged in: ensure latest avatar from Google is saved
+      if (picture && (!user.avatar || user.avatar !== picture)) {
+        user.avatar = picture;
+        await user.save();
       }
     }
 

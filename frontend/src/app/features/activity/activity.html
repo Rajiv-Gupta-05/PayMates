@@ -167,8 +167,10 @@
             <!-- Avatar -->
             <div class="ed-avatar"
                  [class.ed-avatar--me]="split.user?._id?.toString() === currentUser?._id?.toString()">
-              <img *ngIf="split.user?.avatar" [src]="split.user.avatar" [alt]="split.user?.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-              <span *ngIf="!split.user?.avatar">{{ getInitials(split.user?.name) }}</span>
+              <span>{{ getInitials(split.user?.name) }}</span>
+              <img *ngIf="split.user?.avatar" [src]="split.user.avatar" [alt]="split.user?.name || ''"
+                   referrerpolicy="no-referrer"
+                   (error)="$any($event.target).style.display = 'none'">
             </div>
 
             <!-- Name + paid tag -->
@@ -249,8 +251,10 @@
             <div *ngFor="let comment of comments" class="d-flex gap-3 align-items-start">
               <div class="ed-avatar ed-avatar--sm"
                    [class.ed-avatar--me]="comment.author?._id === currentUser?._id">
-                <img *ngIf="comment.author?.avatar" [src]="comment.author.avatar" [alt]="comment.author?.name" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-                <span *ngIf="!comment.author?.avatar">{{ getInitials(comment.author?.name) }}</span>
+                <span>{{ getInitials(comment.author?.name) }}</span>
+                <img *ngIf="comment.author?.avatar" [src]="comment.author.avatar" [alt]="comment.author?.name || ''"
+                     referrerpolicy="no-referrer"
+                     (error)="$any($event.target).style.display = 'none'">
               </div>
               <div class="ed-comment-bubble flex-grow-1 position-relative">
                 <div class="d-flex justify-content-between align-items-center mb-1">

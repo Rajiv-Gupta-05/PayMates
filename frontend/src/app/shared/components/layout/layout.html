@@ -44,9 +44,11 @@
 
     <div class="user-profile d-flex align-items-center gap-3 mt-auto glass-card p-3" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#profileModal" title="Profile Settings">
       <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
-           style="width:40px;height:40px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:14px;overflow:hidden;">
-        <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
-        <span *ngIf="!currentUser?.avatar">{{ getInitials() }}</span>
+           style="width:40px;height:40px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:14px;">
+        <span style="user-select:none;">{{ getInitials() }}</span>
+        <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" [alt]="currentUser?.name || ''"
+             referrerpolicy="no-referrer"
+             (error)="$any($event.target).style.display = 'none'">
       </div>
       <div class="user-info overflow-hidden flex-grow-1">
         <h6 class="m-0 text-truncate">{{ currentUser?.name || 'User' }}</h6>
@@ -76,10 +78,12 @@
           </span>
         </a>
         <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark"
-             style="width:35px;height:35px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:12px;cursor:pointer;overflow:hidden;"
+             style="width:35px;height:35px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:12px;cursor:pointer;"
              data-bs-toggle="modal" data-bs-target="#profileModal">
-          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
-          <span *ngIf="!currentUser?.avatar">{{ getInitials() }}</span>
+          <span style="user-select:none;">{{ getInitials() }}</span>
+          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" [alt]="currentUser?.name || ''"
+               referrerpolicy="no-referrer"
+               (error)="$any($event.target).style.display = 'none'">
         </div>
       </div>
     </header>
@@ -145,9 +149,13 @@
         <form [formGroup]="profileForm">
           <div class="mb-3 text-center">
             <div class="avatar-initials rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark mx-auto mb-2"
-                 style="width:80px;height:80px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:24px;overflow:hidden;">
-              <img *ngIf="profileForm.value.avatar || currentUser?.avatar" [src]="profileForm.value.avatar || currentUser?.avatar" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
-              <span *ngIf="!(profileForm.value.avatar || currentUser?.avatar)">{{ getInitials() }}</span>
+                 style="width:80px;height:80px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:24px;">
+              <span style="user-select:none;">{{ getInitials() }}</span>
+              <img *ngIf="profileForm.value.avatar || currentUser?.avatar"
+                   [src]="profileForm.value.avatar || currentUser?.avatar"
+                   [alt]="currentUser?.name || ''"
+                   referrerpolicy="no-referrer"
+                   (error)="$any($event.target).style.display = 'none'">
             </div>
             <label class="form-label text-secondary small">Avatar URL</label>
             <input type="text" class="form-control glass-input text-center" formControlName="avatar" placeholder="https://example.com/avatar.png">
@@ -222,14 +230,19 @@
       
       <!-- Icon/Avatar -->
       <div class="notif-icon-wrapper rounded-circle d-flex justify-content-center align-items-center flex-shrink-0 position-relative shadow-sm"
-           [style.background]="(notif.type === 'friend_add' || notif.type === 'expense_comment') && !notif.sender?.avatar ? 'linear-gradient(135deg,#00ffcc,#007bff)' : ''"
-           [style.color]="(notif.type === 'friend_add' || notif.type === 'expense_comment') && !notif.sender?.avatar ? '#0b0f19' : ''">
+           [style.background]="(notif.type === 'friend_add' || notif.type === 'expense_comment') ? 'linear-gradient(135deg,#00ffcc,#007bff)' : ''"
+           [style.color]="(notif.type === 'friend_add' || notif.type === 'expense_comment') ? '#0b0f19' : ''"
+           style="overflow:hidden;">
         <!-- If type is comment or friend addition, prioritize user avatar/initials -->
         <ng-container *ngIf="notif.type === 'friend_add' || notif.type === 'expense_comment'">
-          <img *ngIf="notif.sender?.avatar" [src]="notif.sender.avatar" alt="Avatar" class="w-100 h-100 rounded-circle" style="object-fit:cover;">
-          <span *ngIf="!notif.sender?.avatar" style="font-size:11px; font-weight:800; letter-spacing:0.5px;">
+          <span style="font-size:11px; font-weight:800; letter-spacing:0.5px; user-select:none;">
             {{ getSenderInitials(notif.sender) }}
           </span>
+          <img *ngIf="notif.sender?.avatar" [src]="notif.sender.avatar" [alt]="notif.sender?.name || ''"
+               referrerpolicy="no-referrer"
+               (error)="$any($event.target).style.display = 'none'"
+               class="position-absolute inset-0 w-100 h-100 rounded-circle"
+               style="object-fit:cover; z-index:1;">
           
           <!-- Small corner badge for comment type specifically -->
           <span *ngIf="notif.type === 'expense_comment'" 

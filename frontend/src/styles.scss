@@ -389,6 +389,21 @@ button:disabled, .btn:disabled {
   }
 }
 
+.avatar-initials {
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+}
+
 .ed-person-info { min-width: 0; }
 
 .ed-person-name {
@@ -564,6 +579,17 @@ button:disabled, .btn:disabled {
   align-items: center;
   justify-content: center;
   margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
 
   &.sd-flow-avatar--payer {
     background: linear-gradient(135deg, #ff6b6b, #ee5a24);
@@ -739,6 +765,17 @@ button:disabled, .btn:disabled {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
 
   &--payer {
     background: rgba(255, 107, 107, 0.3);

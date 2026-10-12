@@ -31,7 +31,7 @@ export class Layout implements OnInit, AfterViewInit {
 
   // Expose observable directly — use async pipe in template to avoid NG0100
   isLoading$: Observable<boolean>;
-  
+
   unreadCount$: Observable<number>;
   notifications$: Observable<any[]>;
 
@@ -47,10 +47,10 @@ export class Layout implements OnInit, AfterViewInit {
     this.isLoading$ = this.appState.isLoading$;
     this.unreadCount$ = this.notificationService.unreadCount$;
     this.notifications$ = this.notificationService.notifications$;
-    
+
     this.profileForm = this.fb.group({
       name: ['', Validators.required],
-      email: [{value: '', disabled: true}],
+      email: [{ value: '', disabled: true }],
       phone: ['', [Validators.pattern('^[0-9]{10}$')]],
       avatar: ['']
     });
