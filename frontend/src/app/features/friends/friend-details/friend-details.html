@@ -1,0 +1,373 @@
+<div class="fd-wrapper">
+
+  <!-- ── Loading ────────────────────────────────────────────── -->
+  <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center py-5">
+    <div class="spinner-border" style="color:#00ffcc;"></div>
+  </div>
+
+  <!-- ── Not Found ──────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && !friend" class="text-center py-5">
+    <i class="bi bi-person-x" style="font-size:4rem;color:rgba(255,255,255,0.2);"></i>
+    <h4 class="mt-3 text-secondary">Friend not found</h4>
+    <a routerLink="/friends" class="btn btn-sm rounded-pill mt-3 px-4"
+       style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#adb5bd;">
+      ← Back to Friends
+    </a>
+  </div>
+
+  <!-- ── Main Content ───────────────────────────────────────── -->
+  <div *ngIf="!isLoading && friend">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <a routerLink="/friends" class="btn-back d-flex align-items-center justify-content-center rounded-circle text-light text-decoration-none">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <div class="fd-avatar rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0">
+          <span>{{ getInitials(friend.name) }}</span>
+          <img *ngIf="friend.avatar" [src]="friend.avatar" [alt]="friend.name || ''"
+               referrerpolicy="no-referrer"
+               (error)="$any($event.target).style.display = 'none'">
+        </div>
+        <div>
+          <h2 class="fw-bold mb-0">{{ friend.name }}</h2>
+          <p class="text-secondary m-0 small">{{ friend.email }}</p>
+        </div>
+      </div>
+
+      <!-- Balance badge -->
+      <div class="text-end flex-shrink-0">
+        <p class="text-secondary small m-0" style="font-size:11px;">
+          {{ balance > 0 ? 'Owes you' : balance < 0 ? 'You owe' : 'Settled up' }}
+        </p>
+        <h5 class="fw-bold m-0"
+            [style.color]="balance > 0 ? '#00ffcc' : balance < 0 ? '#ff6b6b' : '#adb5bd'">
+          ₹{{ abs(balance) | number:'1.2-2' }}
+        </h5>
+      </div>
+    </div>
+
+    <!-- Filters (same pill style as Activity) -->
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+      <button class="btn btn-sm rounded-pill px-4"
+              [style.background]="activeFilter==='all' ? 'rgba(0,255,204,0.15)' : 'rgba(255,255,255,0.05)'"
+              [style.border]="activeFilter==='all' ? '1px solid rgba(0,255,204,0.5)' : '1px solid rgba(255,255,255,0.1)'"
+              [style.color]="activeFilter==='all' ? '#00ffcc' : '#adb5bd'"
+              (click)="setFilter('all')">All</button>
+      <button class="btn btn-sm rounded-pill px-4"
+              [style.background]="activeFilter==='expenses' ? 'rgba(0,255,204,0.15)' : 'rgba(255,255,255,0.05)'"
+              [style.border]="activeFilter==='expenses' ? '1px solid rgba(0,255,204,0.5)' : '1px solid rgba(255,255,255,0.1)'"
+              [style.color]="activeFilter==='expenses' ? '#00ffcc' : '#adb5bd'"
+              (click)="setFilter('expenses')">Expenses</button>
+      <button class="btn btn-sm rounded-pill px-4"
+              [style.background]="activeFilter==='settlements' ? 'rgba(0,255,204,0.15)' : 'rgba(255,255,255,0.05)'"
+              [style.border]="activeFilter==='settlements' ? '1px solid rgba(0,255,204,0.5)' : '1px solid rgba(255,255,255,0.1)'"
+              [style.color]="activeFilter==='settlements' ? '#00ffcc' : '#adb5bd'"
+              (click)="setFilter('settlements')">Settlements</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredTimeline.length === 0" class="text-center py-5">
+      <i class="bi bi-receipt-cutoff" style="font-size:4rem;color:rgba(255,255,255,0.2);"></i>
+      <h4 class="mt-3 text-secondary">No shared activity</h4>
+      <p class="text-secondary">Add an expense with {{ friend.name }} to see it here.</p>
+      <button class="btn btn-gradient px-4 rounded-pill mt-2"
+              data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+        <i class="bi bi-plus-lg me-2"></i>Add Expense
+      </button>
+    </div>
+
+    <!-- Timeline (glass-card, same as Activity) -->
+    <div *ngIf="filteredTimeline.length > 0" class="glass-card p-0 overflow-hidden">
+      <div *ngFor="let item of filteredTimeline; let last = last"
+           class="d-flex align-items-start gap-3 p-4 transition-hover"
+           style="cursor:pointer;"
+           [class.border-bottom]="!last"
+           style="border-color:rgba(255,255,255,0.08) !important;"
+           (click)="openItem(item)"
+           data-bs-toggle="modal"
+           [attr.data-bs-target]="item.kind==='expense' ? '#fdExpenseDetailModal' : '#fdSettlementDetailModal'">
+
+        <!-- Icon -->
+        <div class="rounded-circle d-flex justify-content-center align-items-center flex-shrink-0"
+             style="width:44px;height:44px;"
+             [style.background]="item.kind==='expense' ? (isPositiveForMe(item) ? 'rgba(0,255,204,0.12)' : 'rgba(255,107,107,0.12)') : 'rgba(162,155,254,0.15)'"
+             [style.color]="item.kind==='expense' ? (isPositiveForMe(item) ? '#00ffcc' : '#ff6b6b') : '#a29bfe'">
+          <i [class]="item.kind==='expense' ? 'bi bi-receipt' : 'bi bi-cash-coin'"></i>
+        </div>
+
+        <!-- Details -->
+        <div class="flex-grow-1 overflow-hidden">
+          <h6 class="m-0 fw-bold text-truncate">
+            {{ item.kind==='expense' ? item.description : getSettlementLabel(item) }}
+            <i class="bi bi-chevron-right ms-1 text-secondary" style="font-size:10px;opacity:0.5;"></i>
+          </h6>
+
+          <small class="text-secondary d-block" *ngIf="item.kind==='expense'">
+            <span *ngIf="iAmInvolved(item)">{{ getExpenseLabel(item) }}</span>
+            <span *ngIf="!iAmInvolved(item)">{{ item.createdBy?.name }} added this</span>
+            <span *ngIf="item.groupId"> · 📁 {{ item.groupId?.name }}</span>
+          </small>
+          <small class="text-secondary d-block" *ngIf="item.kind==='settlement' && item.note">
+            "{{ item.note }}"
+          </small>
+
+          <div class="d-flex align-items-center flex-wrap gap-2 mt-1">
+            <small class="text-light text-nowrap" style="font-size:12px;">
+              {{ (item.updatedAt || item.createdAt) | date:'d MMM y · h:mm a' }}
+            </small>
+            <span *ngIf="isEdited(item)"
+                  class="badge rounded-pill"
+                  style="background:rgba(255,255,255,0.06);color:#adb5bd;font-size:9px;letter-spacing:0.5px;padding:3px 7px;border:1px solid rgba(255,255,255,0.1);font-weight:600;">
+              <i class="bi bi-pencil-fill me-1" style="font-size:8px;opacity:0.7;"></i>Edited
+            </span>
+            <span *ngIf="item.kind==='expense' && item.category"
+                  class="badge rounded-pill px-2"
+                  style="background:rgba(255,255,255,0.06);color:#adb5bd;font-size:10px;">
+              {{ item.category }}
+            </span>
+            <span *ngIf="item.kind==='expense' && item.groupId"
+                  class="badge rounded-pill px-2"
+                  style="background:rgba(0,123,255,0.12);color:#74b9ff;font-size:10px;border:1px solid rgba(0,123,255,0.2);">
+              <i class="bi bi-people-fill me-1"></i>{{ item.groupId?.name }}
+            </span>
+            <span *ngIf="item.kind==='settlement'"
+                  class="badge rounded-pill px-2"
+                  style="background:rgba(162,155,254,0.12);color:#a29bfe;font-size:10px;">
+              Settlement
+            </span>
+          </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="text-end flex-shrink-0">
+          <p class="fw-bold m-0"
+             [style.color]="isPositiveForMe(item) ? '#00ffcc' : '#ff6b6b'">
+            {{ isPositiveForMe(item) ? '+' : '-' }}₹{{ (item.kind==='expense' ? item.totalAmount : item.amount) | number:'1.2-2' }}
+          </p>
+          <small class="text-secondary" style="font-size:12px;">
+            {{ item.kind==='expense' ? 'total' : 'settled' }}
+          </small>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════
+     EXPENSE Detail Modal  (identical to Activity's)
+════════════════════════════════════════════════════ -->
+<div class="modal fade" id="fdExpenseDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content glass-modal border-0" *ngIf="selectedExpense">
+
+      <!-- Top accent bar -->
+      <div class="modal-accent-bar"></div>
+
+      <!-- Header -->
+      <div class="modal-header border-0 px-4 pt-4 pb-2">
+        <div class="d-flex align-items-center gap-3 flex-grow-1 overflow-hidden">
+          <div class="ed-icon-bubble flex-shrink-0">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <div class="overflow-hidden">
+            <h5 class="fw-bold mb-1 text-truncate">{{ selectedExpense.description }}</h5>
+            <div class="d-flex gap-2 flex-wrap">
+              <span *ngIf="!selectedExpense.groupId" class="ed-chip ed-chip--neutral">Personal</span>
+              <span *ngIf="selectedExpense.groupId" class="ed-chip ed-chip--blue">
+                <i class="bi bi-collection me-1"></i>{{ selectedExpense.groupId?.name }}
+              </span>
+              <span class="ed-chip ed-chip--subtle">{{ selectedExpense.category || 'OTHER' }}</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-2 flex-shrink-0"
+                id="closeFDExpenseModal" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body px-4 pb-4">
+
+        <!-- Amount hero card -->
+        <div class="ed-amount-card mb-4">
+          <p class="ed-amount-label">Total Amount</p>
+          <h2 class="ed-amount-value">₹{{ selectedExpense.totalAmount | number:'1.2-2' }}</h2>
+          <p class="ed-amount-meta">
+            <ng-container *ngFor="let split of selectedExpense.splits">
+              <span *ngIf="split.amountPaid > 0">
+                Paid by <strong>{{ split.user?._id?.toString() === currentUser?._id?.toString() ? 'You' : split.user?.name }}</strong>
+              </span>
+            </ng-container>
+            &nbsp;·&nbsp;{{ selectedExpense.createdAt | date:'d MMM y' }}
+          </p>
+        </div>
+
+        <!-- Split breakdown -->
+        <p class="ed-section-label">Split ({{ selectedExpense.splits?.length }} people)</p>
+        <div class="ed-people-list mb-4">
+          <div *ngFor="let split of selectedExpense.splits; let last = last"
+               class="ed-person-row" [class.ed-person-row--last]="last">
+
+            <div class="ed-avatar"
+                 [class.ed-avatar--me]="split.user?._id?.toString() === currentUser?._id?.toString()">
+              <span>{{ getInitials(split.user?.name) }}</span>
+              <img *ngIf="split.user?.avatar" [src]="split.user.avatar" [alt]="split.user?.name || ''"
+                   referrerpolicy="no-referrer"
+                   (error)="$any($event.target).style.display = 'none'">
+            </div>
+
+            <div class="ed-person-info flex-grow-1">
+              <p class="ed-person-name">
+                {{ split.user?._id?.toString() === currentUser?._id?.toString() ? 'You' : split.user?.name }}
+              </p>
+              <p class="ed-person-sub">
+                <span *ngIf="split.amountPaid > 0" class="ed-paid-tag">Paid ₹{{ split.amountPaid | number:'1.2-2' }}</span>
+                Share: ₹{{ split.amountOwed | number:'1.2-2' }}
+              </p>
+            </div>
+
+            <div class="ed-net"
+                 [class.ed-net--positive]="(split.amountPaid - split.amountOwed) > 0"
+                 [class.ed-net--negative]="(split.amountPaid - split.amountOwed) < 0">
+              {{ (split.amountPaid - split.amountOwed) > 0 ? '+' : '' }}₹{{ (split.amountPaid - split.amountOwed) | number:'1.2-2' }}
+              <small>{{ (split.amountPaid - split.amountOwed) > 0 ? 'gets back' : (split.amountPaid - split.amountOwed) < 0 ? 'owes' : 'even' }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Your summary banner -->
+        <ng-container *ngFor="let split of selectedExpense.splits">
+          <div *ngIf="split.user?._id?.toString() === currentUser?._id?.toString()"
+               class="ed-summary-banner mb-4"
+               [class.ed-summary-banner--positive]="(split.amountPaid - split.amountOwed) >= 0"
+               [class.ed-summary-banner--negative]="(split.amountPaid - split.amountOwed) < 0">
+            <div class="d-flex align-items-center gap-3">
+              <i class="bi ed-summary-icon"
+                 [class.bi-arrow-up-circle-fill]="(split.amountPaid - split.amountOwed) > 0"
+                 [class.bi-arrow-down-circle-fill]="(split.amountPaid - split.amountOwed) < 0"
+                 [class.bi-check-circle-fill]="(split.amountPaid - split.amountOwed) === 0"></i>
+              <div>
+                <p class="fw-semibold m-0" style="font-size:15px;">
+                  {{ (split.amountPaid - split.amountOwed) > 0 ? 'You lent' : (split.amountPaid - split.amountOwed) < 0 ? 'You owe' : 'You\'re all set' }}
+                  <span *ngIf="(split.amountPaid - split.amountOwed) !== 0"> ₹{{ abs(split.amountPaid - split.amountOwed) | number:'1.2-2' }}</span>
+                </p>
+                <p class="text-secondary m-0" style="font-size:12px;">Your share on this expense</p>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Footer: added by + actions -->
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <small class="text-secondary">Added by {{ selectedExpense.createdBy?.name }}</small>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm ed-btn-edit rounded-pill px-3"
+                    (click)="editExpense(selectedExpense)"
+                    data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+              <i class="bi bi-pencil me-1"></i>Edit
+            </button>
+            <button *ngIf="selectedExpense.createdBy?._id?.toString() === currentUser?._id?.toString()"
+                    class="btn btn-sm ed-btn-delete rounded-pill px-3"
+                    (click)="deleteExpense(selectedExpense._id)">
+              <i class="bi bi-trash me-1"></i>Delete
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════
+     SETTLEMENT Detail Modal
+════════════════════════════════════════════════════ -->
+<div class="modal fade" id="fdSettlementDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-modal border-0" *ngIf="selectedSettlement">
+      <div class="modal-accent-bar" style="background:linear-gradient(90deg,#a29bfe,#6c5ce7);"></div>
+
+      <!-- Header -->
+      <div class="modal-header border-0 px-4 pt-4 pb-2">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle d-flex justify-content-center align-items-center flex-shrink-0"
+               style="width:46px;height:46px;background:rgba(162,155,254,0.12);color:#a29bfe;font-size:20px;">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">Settlement</h5>
+            <small class="text-secondary">Payment recorded</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body px-4 pb-4">
+
+        <!-- Amount card -->
+        <div class="sd-amount-card mb-4">
+          <p class="ed-amount-label">Amount Settled</p>
+          <h2 class="sd-amount-value">₹{{ selectedSettlement.amount | number:'1.2-2' }}</h2>
+          <p class="ed-amount-meta">{{ selectedSettlement.createdAt | date:'d MMM y · h:mm a' }}</p>
+        </div>
+
+        <!-- From → To flow -->
+        <p class="ed-section-label mb-3">Transaction</p>
+        <div class="sd-flow-card mb-4">
+          <div class="sd-flow-person">
+            <div class="sd-flow-avatar sd-flow-avatar--payer">
+              <span>{{ getInitials(selectedSettlement.payer?.name) }}</span>
+              <img *ngIf="selectedSettlement.payer?.avatar" [src]="selectedSettlement.payer.avatar" [alt]="selectedSettlement.payer?.name || ''"
+                   referrerpolicy="no-referrer"
+                   (error)="$any($event.target).style.display = 'none'">
+            </div>
+            <p class="sd-flow-name">{{ selectedSettlement.payer?._id?.toString() === currentUser?._id?.toString() ? 'You' : selectedSettlement.payer?.name }}</p>
+            <small class="text-secondary">paid</small>
+          </div>
+
+          <div class="sd-flow-arrow">
+            <div class="sd-flow-line"></div>
+            <span class="sd-flow-pill">₹{{ selectedSettlement.amount | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="sd-flow-person">
+            <div class="sd-flow-avatar sd-flow-avatar--payee">
+              <span>{{ getInitials(selectedSettlement.payee?.name) }}</span>
+              <img *ngIf="selectedSettlement.payee?.avatar" [src]="selectedSettlement.payee.avatar" [alt]="selectedSettlement.payee?.name || ''"
+                   referrerpolicy="no-referrer"
+                   (error)="$any($event.target).style.display = 'none'">
+            </div>
+            <p class="sd-flow-name">{{ selectedSettlement.payee?._id?.toString() === currentUser?._id?.toString() ? 'You' : selectedSettlement.payee?.name }}</p>
+            <small class="text-secondary">received</small>
+          </div>
+        </div>
+
+        <!-- Note -->
+        <div *ngIf="selectedSettlement.note" class="sd-note mb-4">
+          <small class="text-secondary d-block mb-1"><i class="bi bi-chat-left-text me-1"></i>Note</small>
+          <p class="m-0 text-light" style="font-size:14px;">{{ selectedSettlement.note }}</p>
+        </div>
+
+        <!-- Your summary banner -->
+        <div class="sd-summary-banner"
+             [class.sd-summary-banner--positive]="isPositiveForMe(selectedSettlement)"
+             [class.sd-summary-banner--negative]="!isPositiveForMe(selectedSettlement)">
+          <i class="bi sd-summary-icon"
+             [class.bi-arrow-down-circle-fill]="isPositiveForMe(selectedSettlement)"
+             [class.bi-arrow-up-circle-fill]="!isPositiveForMe(selectedSettlement)"></i>
+          <div>
+            <p class="fw-semibold m-0" style="font-size:15px;">
+              {{ isPositiveForMe(selectedSettlement) ? 'You received' : 'You paid' }}
+              ₹{{ selectedSettlement.amount | number:'1.2-2' }}
+            </p>
+            <p class="text-secondary m-0" style="font-size:12px;">Your summary for this settlement</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+// All ed-* and sd-* modal styles live in src/styles.scss (global).
+// Component-specific styles only below.
+
+.fd-wrapper {
+  // Matches the padding used on other feature pages in layout
+}
+
+.btn-back {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.2s;
+  flex-shrink: 0;
+  text-decoration: none;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.fd-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 16px;
+  background: linear-gradient(135deg, #00ffcc, #007bff);
+  color: #000;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+}

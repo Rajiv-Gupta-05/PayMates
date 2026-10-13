@@ -2,44 +2,422 @@
   <div class="d-flex justify-content-between align-items-center gap-3 mb-5">
     <div>
       <h2 class="fw-bold mb-1">Groups</h2>
-      <p class="text-secondary m-0">Manage your shared spaces.</p>
+      <p class="text-secondary m-0">Manage your shared expenses.</p>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-gradient d-none d-md-flex align-items-center justify-content-center gap-2 px-3 px-md-4 py-2 rounded-pill flex-grow-1 flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+      <button class="btn btn-gradient d-none d-md-flex align-items-center gap-2 px-4 py-2 rounded-pill"
+              data-bs-toggle="modal" data-bs-target="#addExpenseModal">
         <i class="bi bi-plus-lg"></i> Add Expense
       </button>
-      <button class="btn btn-gradient d-flex align-items-center justify-content-center gap-2 px-3 px-md-4 py-2 rounded-pill flex-grow-1 flex-md-grow-0">
+      <button class="btn btn-gradient d-flex align-items-center gap-2 px-4 py-2 rounded-pill"
+              data-bs-toggle="modal" data-bs-target="#createGroupModal">
         <i class="bi bi-plus-lg"></i> Create Group
       </button>
     </div>
   </div>
 
-  <div class="row g-4">
-    <div class="col-12 col-md-6 col-xl-4">
-      <div class="glass-card p-4 h-100 transition-hover">
+
+
+  <!-- Empty State -->
+  <div *ngIf="groups.length === 0" class="text-center py-5">
+    <i class="bi bi-collection" style="font-size:4rem;color:rgba(255,255,255,0.2);"></i>
+    <h4 class="mt-3 text-secondary">No groups yet</h4>
+    <p class="text-secondary mb-4">Create a group to split expenses with friends.</p>
+    <button class="btn btn-gradient px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+      <i class="bi bi-plus-lg me-2"></i> Create your first group
+    </button>
+  </div>
+
+  <!-- Groups Grid -->
+  <div *ngIf="groups.length > 0" class="row g-4">
+    <div *ngFor="let group of groups" class="col-12 col-md-6 col-xl-4">
+      <div class="glass-card p-4 h-100 transition-hover" style="cursor:pointer;" (click)="viewGroup(group)"
+           data-bs-toggle="modal" data-bs-target="#groupDetailModal">
         <div class="d-flex justify-content-between align-items-start mb-3">
-          <div class="avatar rounded-3 bg-gradient d-flex justify-content-center align-items-center fs-4" style="width: 50px; height: 50px; background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color: #333;">🏖️</div>
-          <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50">Settled</span>
+          <div class="rounded-3 d-flex justify-content-center align-items-center fs-4 flex-shrink-0"
+               style="width:50px;height:50px;" [style.background]="getColor(group.type)">
+            {{ getEmoji(group.type) }}
+          </div>
+          <span *ngIf="getGroupBalance(group._id) !== null" class="badge rounded-pill"
+                [class.bg-danger]="getGroupBalance(group._id)! < -0.01"
+                [class.text-white]="getGroupBalance(group._id)! < -0.01"
+                [style.background]="getGroupBalance(group._id)! < -0.01 ? 'rgba(255,107,107,0.15)' : (getGroupBalance(group._id)! > 0.01 ? 'rgba(0,255,204,0.15)' : 'rgba(255,255,255,0.1)')"
+                [style.color]="getGroupBalance(group._id)! < -0.01 ? '#ff6b6b' : (getGroupBalance(group._id)! > 0.01 ? '#00ffcc' : '#adb5bd')"
+                [style.border]="'1px solid ' + (getGroupBalance(group._id)! < -0.01 ? 'rgba(255,107,107,0.3)' : (getGroupBalance(group._id)! > 0.01 ? 'rgba(0,255,204,0.3)' : 'rgba(255,255,255,0.2)'))">
+            {{ getGroupBalance(group._id)! < -0.01 ? 'You owe' : (getGroupBalance(group._id)! > 0.01 ? 'You are owed' : 'Settled') }}
+          </span>
         </div>
-        <h4 class="fw-bold mb-1">Goa Trip 2026</h4>
-        <p class="text-secondary small mb-4">4 members</p>
+        <h4 class="fw-bold mb-1">{{ group.name }}</h4>
+        <p class="text-secondary small mb-4">{{ group.members?.length || 0 }} members · {{ group.type }}</p>
         <div class="border-top border-secondary border-opacity-25 pt-3">
-          <p class="m-0 text-secondary">Your balance: <span class="text-light fw-bold">$0.00</span></p>
+          <p class="m-0 text-secondary">Your balance:
+            <span class="fw-bold"
+                  [style.color]="getGroupBalance(group._id) === null ? '#adb5bd' : (getGroupBalance(group._id)! >= 0 ? '#00ffcc' : '#ff6b6b')">
+              {{ getGroupBalance(group._id) === null ? '...' : '₹' + (getGroupBalance(group._id) | number:'1.2-2') }}
+            </span>
+          </p>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="col-12 col-md-6 col-xl-4">
-      <div class="glass-card p-4 h-100 transition-hover border-danger border-opacity-50">
-        <div class="d-flex justify-content-between align-items-start mb-3">
-          <div class="avatar rounded-3 bg-gradient d-flex justify-content-center align-items-center fs-4" style="width: 50px; height: 50px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); color: #333;">🏠</div>
-          <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50">You owe</span>
+<!-- Create Group Modal -->
+<div class="modal fade" id="createGroupModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-modal border-0">
+      <div class="modal-accent-bar"></div>
+      <div class="modal-header border-0 pt-4 px-4">
+        <h5 class="modal-title fw-bold"><i class="bi bi-collection-fill me-2"></i>Create Group</h5>
+        <button type="button" class="btn-close btn-close-white" id="closeCreateGroupModal" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div *ngIf="createError" class="alert alert-danger py-2 mb-3">{{ createError }}</div>
+
+        <div class="mb-3">
+          <label class="form-label text-secondary small">Group Name *</label>
+          <input type="text" class="form-control glass-input" placeholder="e.g., Goa Trip 2026"
+                 [formControl]="$any(createForm.controls['name'])">
         </div>
-        <h4 class="fw-bold mb-1">Downtown Apartment</h4>
-        <p class="text-secondary small mb-4">3 members</p>
-        <div class="border-top border-secondary border-opacity-25 pt-3">
-          <p class="m-0 text-secondary">Your balance: <span class="text-danger fw-bold">-$120.00</span></p>
+
+        <div class="mb-4">
+          <label class="form-label text-secondary small">Group Type</label>
+          <div class="d-flex gap-2 flex-wrap">
+            <button *ngFor="let type of GROUP_TYPES" type="button"
+                    class="btn btn-sm rounded-pill"
+                    [style.background]="createForm.value.type === type ? 'rgba(0,255,204,0.15)' : 'rgba(255,255,255,0.05)'"
+                    [style.border]="createForm.value.type === type ? '1px solid rgba(0,255,204,0.5)' : '1px solid rgba(255,255,255,0.1)'"
+                    [style.color]="createForm.value.type === type ? '#00ffcc' : '#adb5bd'"
+                    (click)="createForm.patchValue({type: type})">
+              {{ getEmoji(type) }} {{ type }}
+            </button>
+          </div>
         </div>
+
+        <div class="mb-4">
+          <label class="form-label text-secondary small">Add Members</label>
+          <input type="text" class="form-control glass-input mb-2" placeholder="Search by name or email..."
+                 [(ngModel)]="friendSearchQuery" (input)="searchFriends()">
+          <div *ngIf="friendResults.length > 0" class="glass-card p-2 mb-2">
+            <div *ngFor="let u of friendResults" class="d-flex align-items-center gap-2 p-2 rounded-3 transition-hover"
+                 style="cursor:pointer;" (click)="addToSelected(u)">
+              <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark"
+                   style="width:32px;height:32px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:11px;flex-shrink:0;">
+                {{ getInitials(u.name) }}
+              </div>
+              <div>
+                <div class="fw-semibold" style="font-size:14px;">{{ u.name }}</div>
+                <div class="text-secondary" style="font-size:12px;">{{ u.email }}</div>
+              </div>
+              <i class="bi bi-plus-circle ms-auto text-success"></i>
+            </div>
+          </div>
+          <div *ngIf="selectedFriends.length > 0" class="d-flex flex-wrap gap-2">
+            <span *ngFor="let f of selectedFriends"
+                  class="badge d-flex align-items-center gap-1 py-2 px-3"
+                  style="background:rgba(0,255,204,0.15);border:1px solid rgba(0,255,204,0.3);color:#00ffcc;border-radius:50px;">
+              {{ f.name }}
+              <i class="bi bi-x-circle" style="cursor:pointer;" (click)="removeFromSelected(f._id)"></i>
+            </span>
+          </div>
+        </div>
+
+        <button class="btn btn-gradient w-100 py-3 rounded-pill fw-bold"
+                (click)="createGroup()" [disabled]="createForm.invalid || isCreating || selectedFriends.length === 0">
+          <span *ngIf="isCreating" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isCreating ? 'Creating...' : 'Create Group' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     GROUP DETAIL MODAL
+════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="groupDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content glass-modal border-0" *ngIf="selectedGroup">
+      <div class="modal-accent-bar"></div>
+
+      <!-- ── Header ── -->
+      <div class="modal-header border-0 px-4 pt-4 pb-2">
+        <div class="d-flex align-items-center gap-3 flex-grow-1 overflow-hidden">
+          <!-- Group emoji icon -->
+          <div class="gd-group-icon flex-shrink-0"
+               [style.background]="getColor(selectedGroup.type)">
+            {{ getEmoji(selectedGroup.type) }}
+          </div>
+          <div class="overflow-hidden">
+            <h5 class="fw-bold mb-1 text-truncate">{{ selectedGroup.name }}</h5>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="ed-chip ed-chip--neutral">
+                <i class="bi bi-people me-1"></i>{{ selectedGroup.members?.length }} members
+              </span>
+              <span class="ed-chip ed-chip--subtle">{{ selectedGroup.type }}</span>
+              <span class="ed-chip ed-chip--neutral" style="font-size:10px;opacity:0.7;">
+                by {{ isCreator(selectedGroup) ? 'You' : selectedGroup.createdBy?.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-2 flex-shrink-0"
+                id="closeGroupDetailModal" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- ── Body ── -->
+      <div class="modal-body px-4 pb-4">
+
+        <!-- Loading -->
+        <div *ngIf="isLoadingDetail" class="text-center py-5">
+          <div class="spinner-border mb-2" style="color:#00ffcc;width:2rem;height:2rem;"></div>
+          <p class="text-secondary small m-0">Loading details…</p>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="!isLoadingDetail && detailError" class="alert alert-danger py-3 rounded-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ detailError }}
+        </div>
+
+        <!-- ── Main content ── -->
+        <ng-container *ngIf="!isLoadingDetail && !detailError && groupDetail">
+
+          <!-- Stats row -->
+          <div class="d-flex gap-3 mb-4">
+            <div class="gd-stat-card flex-grow-1"
+                 [class.gd-stat-card--positive]="groupDetail.yourBalance >= 0"
+                 [class.gd-stat-card--negative]="groupDetail.yourBalance < 0">
+              <p class="gd-stat-label">Your Balance</p>
+              <p class="gd-stat-value"
+                 [style.color]="groupDetail.yourBalance >= 0 ? '#00ffcc' : '#ff6b6b'">
+                {{ groupDetail.yourBalance >= 0 ? '+' : '' }}₹{{ groupDetail.yourBalance | number:'1.2-2' }}
+              </p>
+            </div>
+            <div class="gd-stat-card flex-grow-1">
+              <p class="gd-stat-label">Total Expenses</p>
+              <p class="gd-stat-value text-white">{{ groupExpenses.length }}</p>
+            </div>
+          </div>
+
+          <!-- ── Suggested Settlements ── -->
+          <p class="ed-section-label mb-2">
+            <i class="bi bi-lightning-charge me-1"></i>Suggested Settlements
+          </p>
+
+          <div *ngIf="groupDetail.simplifiedDebts?.length === 0"
+               class="gd-settled-banner mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Everyone is settled up!
+          </div>
+
+          <div class="gd-debt-list mb-4" *ngIf="groupDetail.simplifiedDebts?.length > 0">
+            <div *ngFor="let debt of groupDetail.simplifiedDebts; let last = last"
+                 class="gd-debt-row" [class.gd-debt-row--last]="last">
+              <div class="gd-debt-avatar gd-debt-avatar--payer">
+                <span>{{ getInitials(debt.from?.name) }}</span>
+                <img *ngIf="debt.from?.avatar" [src]="debt.from.avatar" [alt]="debt.from?.name || ''"
+                     referrerpolicy="no-referrer"
+                     (error)="$any($event.target).style.display = 'none'">
+              </div>
+              <span class="gd-debt-name">
+                {{ debt.from?._id?.toString() === currentUser?._id?.toString() ? 'You' : debt.from?.name }}
+              </span>
+              <i class="bi bi-arrow-right gd-debt-arrow"></i>
+              <span class="gd-debt-to">
+                {{ debt.to?._id?.toString() === currentUser?._id?.toString() ? 'You' : debt.to?.name }}
+              </span>
+              <span class="gd-debt-amount ms-auto">₹{{ debt.amount | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <!-- ── Member Balances ── -->
+          <p class="ed-section-label mb-2">
+            <i class="bi bi-people me-1"></i>Member Balances
+          </p>
+          <div class="ed-people-list mb-4">
+            <div *ngFor="let m of groupDetail.memberBalances; let last = last"
+                 class="ed-person-row" [class.ed-person-row--last]="last">
+              <div class="ed-avatar"
+                   [class.ed-avatar--me]="m.user?._id?.toString() === currentUser?._id?.toString()">
+                <span>{{ getInitials(m.user.name) }}</span>
+                <img *ngIf="m.user?.avatar" [src]="m.user.avatar" [alt]="m.user.name || ''"
+                     referrerpolicy="no-referrer"
+                     (error)="$any($event.target).style.display = 'none'">
+              </div>
+              <span class="ed-person-name flex-grow-1">
+                {{ m.user?._id?.toString() === currentUser?._id?.toString() ? 'You' : m.user.name }}
+              </span>
+              <span class="ed-net"
+                    [class.ed-net--positive]="m.netBalance > 0"
+                    [class.ed-net--negative]="m.netBalance < 0">
+                {{ m.netBalance >= 0 ? '+' : '' }}₹{{ m.netBalance | number:'1.2-2' }}
+                <small>{{ m.netBalance > 0 ? 'gets back' : m.netBalance < 0 ? 'owes' : 'even' }}</small>
+              </span>
+            </div>
+          </div>
+
+          <!-- ── Group Expenses ── -->
+          <hr class="ed-divider">
+
+          <p class="ed-section-label mb-3">
+            <i class="bi bi-receipt me-1"></i>Group Expenses
+          </p>
+
+          <!-- Empty state -->
+          <div *ngIf="groupExpenses.length === 0" class="text-center py-4 text-secondary">
+            <i class="bi bi-receipt-cutoff d-block fs-2 mb-2 opacity-25"></i>
+            No expenses in this group yet.
+          </div>
+
+          <!-- Expense detail drill-down -->
+          <div *ngIf="selectedExpense" class="gd-expense-detail mb-3">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <button class="btn btn-sm rounded-pill px-3 ed-btn-edit" (click)="closeExpense()">
+                <i class="bi bi-chevron-left me-1"></i>Back
+              </button>
+              <span class="fw-semibold flex-grow-1 text-truncate">{{ selectedExpense.description }}</span>
+              <span class="text-secondary" style="font-size:13px;white-space:nowrap;">
+                ₹{{ selectedExpense.totalAmount | number:'1.2-2' }}
+              </span>
+            </div>
+
+            <div class="ed-people-list mb-3">
+              <div *ngFor="let split of selectedExpense.splits; let last = last"
+                   class="ed-person-row" [class.ed-person-row--last]="last">
+                <div class="ed-avatar"
+                     [class.ed-avatar--me]="split.user?._id?.toString() === currentUser?._id?.toString()">
+                  <span>{{ getInitials(split.user?.name) }}</span>
+                  <img *ngIf="split.user?.avatar" [src]="split.user.avatar" [alt]="split.user?.name || ''"
+                       referrerpolicy="no-referrer"
+                       (error)="$any($event.target).style.display = 'none'">
+                </div>
+                <div class="ed-person-info flex-grow-1">
+                  <p class="ed-person-name">
+                    {{ split.user?._id?.toString() === currentUser?._id?.toString() ? 'You' : split.user?.name }}
+                  </p>
+                  <p class="ed-person-sub">
+                    <span *ngIf="split.amountPaid > 0" class="ed-paid-tag">Paid ₹{{ split.amountPaid | number:'1.2-2' }}</span>
+                    Share: ₹{{ split.amountOwed | number:'1.2-2' }}
+                  </p>
+                </div>
+                <div class="ed-net"
+                     [class.ed-net--positive]="(split.amountPaid - split.amountOwed) > 0"
+                     [class.ed-net--negative]="(split.amountPaid - split.amountOwed) < 0">
+                  {{ (split.amountPaid - split.amountOwed) > 0 ? '+' : '' }}₹{{ (split.amountPaid - split.amountOwed) | number:'1.2-2' }}
+                  <small>{{ (split.amountPaid - split.amountOwed) > 0 ? 'gets back' : (split.amountPaid - split.amountOwed) < 0 ? 'owes' : 'even' }}</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end mb-3">
+              <button class="btn btn-sm ed-btn-edit rounded-pill px-4"
+                      (click)="editExpense(selectedExpense)"
+                      data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+                <i class="bi bi-pencil me-1"></i>Edit Expense
+              </button>
+            </div>
+
+            <!-- Comments -->
+            <hr class="ed-divider">
+            <p class="ed-section-label d-flex align-items-center justify-content-between mb-3">
+              <span>💬 Comments ({{ comments.length }})</span>
+              <span *ngIf="isLoadingComments" class="spinner-border spinner-border-sm text-secondary" role="status"></span>
+            </p>
+
+            <div *ngIf="!isLoadingComments && comments.length === 0"
+                 class="text-center py-2 text-secondary" style="font-size:13px;opacity:0.7;">
+              No comments yet. Start the conversation!
+            </div>
+
+            <div *ngIf="comments.length > 0" class="d-flex flex-column gap-2 mb-3"
+                 style="max-height:180px;overflow-y:auto;padding-right:4px;">
+              <div *ngFor="let comment of comments" class="d-flex gap-2 align-items-start">
+                <div class="ed-avatar ed-avatar--sm"
+                     [class.ed-avatar--me]="comment.author?._id === currentUser?._id">
+                  <span>{{ getInitials(comment.author?.name) }}</span>
+                  <img *ngIf="comment.author?.avatar" [src]="comment.author.avatar" [alt]="comment.author?.name || ''"
+                       referrerpolicy="no-referrer"
+                       (error)="$any($event.target).style.display = 'none'">
+                </div>
+                <div class="ed-comment-bubble flex-grow-1 position-relative">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong style="font-size:11px;">{{ comment.author?._id === currentUser?._id ? 'You' : comment.author?.name }}</strong>
+                    <span class="text-secondary" style="font-size:10px;">{{ comment.createdAt | date:'shortTime' }}</span>
+                  </div>
+                  <p class="m-0" style="font-size:12px;color:rgba(255,255,255,0.65);word-break:break-word;">{{ comment.text }}</p>
+                  <button *ngIf="comment.author?._id === currentUser?._id"
+                          class="btn btn-link p-0 text-secondary border-0 position-absolute end-0 top-0 mt-1 me-2"
+                          style="font-size:13px;text-decoration:none;"
+                          (click)="deleteComment(comment._id)">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 align-items-center">
+              <input type="text" class="form-control glass-input py-2"
+                     placeholder="Write a comment…"
+                     [(ngModel)]="newCommentText"
+                     (keyup.enter)="postComment()"
+                     [disabled]="isPostingComment"
+                     style="font-size:12px;border-radius:20px;">
+              <button class="btn btn-sm btn-gradient py-2 px-3 flex-shrink-0"
+                      [disabled]="!newCommentText.trim() || isPostingComment"
+                      (click)="postComment()"
+                      style="border-radius:20px;font-size:12px;min-width:55px;">
+                <span *ngIf="!isPostingComment">Post</span>
+                <span *ngIf="isPostingComment" class="spinner-border spinner-border-sm" role="status"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Expense list rows -->
+          <div *ngIf="!selectedExpense && groupExpenses.length > 0" class="ed-people-list mb-4">
+            <div *ngFor="let exp of groupExpenses; let last = last"
+                 class="gd-expense-row" [class.gd-expense-row--last]="last"
+                 (click)="openExpense(exp)">
+
+              <!-- Receipt icon -->
+              <div class="gd-expense-icon"
+                   [style.background]="getMyNet(exp) >= 0 ? 'rgba(0,255,204,0.1)' : 'rgba(255,107,107,0.1)'"
+                   [style.color]="getMyNet(exp) >= 0 ? '#00ffcc' : '#ff6b6b'">
+                <i class="bi bi-receipt"></i>
+              </div>
+
+              <!-- Name + date + added by -->
+              <div class="ed-person-info flex-grow-1">
+                <p class="ed-person-name">{{ exp.description }}</p>
+                <p class="ed-person-sub">
+                  {{ (exp.updatedAt || exp.createdAt) | date:'d MMM y' }}
+                  <span *ngIf="isEdited(exp)" class="ed-paid-tag" style="background:rgba(255,255,255,0.06);color:#adb5bd;border-color:rgba(255,255,255,0.12);">
+                    <i class="bi bi-pencil-fill" style="font-size:8px;"></i> Edited
+                  </span>
+                  · {{ exp.createdBy?.name }}
+                </p>
+              </div>
+
+              <!-- Amount + your share -->
+              <div class="text-end flex-shrink-0">
+                <p class="ed-person-name m-0">₹{{ exp.totalAmount | number:'1.2-2' }}</p>
+                <small [style.color]="getMyNet(exp) > 0 ? '#00ffcc' : getMyNet(exp) < 0 ? '#ff6b6b' : '#adb5bd'"
+                       style="font-size:11px;">
+                  {{ getMyNet(exp) > 0 ? 'you lent ₹' + abs(getMyNet(exp)).toFixed(2) : getMyNet(exp) < 0 ? 'you owe ₹' + abs(getMyNet(exp)).toFixed(2) : 'not split with you' }}
+                </small>
+              </div>
+
+              <i class="bi bi-chevron-right text-secondary" style="font-size:11px;flex-shrink:0;"></i>
+            </div>
+          </div>
+
+          <!-- Delete Group -->
+          <div *ngIf="isCreator(selectedGroup)" class="mt-2">
+            <button class="btn btn-sm ed-btn-delete rounded-pill px-4" (click)="deleteGroup(selectedGroup._id)">
+              <i class="bi bi-trash me-1"></i>Delete Group
+            </button>
+          </div>
+
+        </ng-container>
       </div>
     </div>
   </div>

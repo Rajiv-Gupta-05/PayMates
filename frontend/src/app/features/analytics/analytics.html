@@ -1,0 +1,142 @@
+<div class="analytics-wrapper">
+  <!-- Header -->
+  <div class="mb-5">
+    <h2 class="fw-bold mb-1">Analytics</h2>
+    <p class="text-secondary m-0">Gain insights into your spending habits.</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row g-4 mb-5">
+    <div class="col-12 col-md-4 animate-card delay-1">
+      <div class="glass-card p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center"
+           style="border-top: 4px solid #00ffcc;">
+        <div class="rounded-circle d-flex justify-content-center align-items-center mb-3"
+             style="width:48px;height:48px;background:rgba(0,255,204,0.1);color:#00ffcc;font-size:20px;">
+          <i class="bi bi-wallet2"></i>
+        </div>
+        <p class="text-secondary small text-uppercase fw-bold mb-1" style="letter-spacing:1px;">Total Spent</p>
+        <h3 class="fw-bold m-0" style="color:#00ffcc;">₹{{ totalSpent | number:'1.2-2' }}</h3>
+        
+        <div class="mt-3 px-3 py-1 rounded-pill d-inline-block" 
+             [style.background]="monthlyTrend > 0 ? 'rgba(255,107,107,0.1)' : 'rgba(0,255,204,0.1)'"
+             [style.color]="monthlyTrend > 0 ? '#ff6b6b' : '#00ffcc'"
+             style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">
+          <i class="bi" [class.bi-arrow-up-right]="monthlyTrend > 0" [class.bi-arrow-down-right]="monthlyTrend <= 0"></i>
+          {{ monthlyTrend > 0 ? '+' : '' }}{{ monthlyTrend | number:'1.1-1' }}% vs last month
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-md-4 animate-card delay-2">
+      <div class="glass-card p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center"
+           style="border-top: 4px solid #007bff;">
+        <div class="rounded-circle d-flex justify-content-center align-items-center mb-3"
+             style="width:48px;height:48px;background:rgba(0,123,255,0.1);color:#007bff;font-size:20px;">
+          <i class="bi bi-arrow-up-right"></i>
+        </div>
+        <p class="text-secondary small text-uppercase fw-bold mb-1" style="letter-spacing:1px;">Total Lent</p>
+        <h3 class="fw-bold m-0" style="color:#007bff;">₹{{ totalLent | number:'1.2-2' }}</h3>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4 animate-card delay-3">
+      <div class="glass-card p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center"
+           style="border-top: 4px solid #ff6b6b;">
+        <div class="rounded-circle d-flex justify-content-center align-items-center mb-3"
+             style="width:48px;height:48px;background:rgba(255,107,107,0.1);color:#ff6b6b;font-size:20px;">
+          <i class="bi bi-arrow-down-left"></i>
+        </div>
+        <p class="text-secondary small text-uppercase fw-bold mb-1" style="letter-spacing:1px;">Total Borrowed</p>
+        <h3 class="fw-bold m-0" style="color:#ff6b6b;">₹{{ totalBorrowed | number:'1.2-2' }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-4 mb-5">
+    <!-- Category Doughnut -->
+    <div class="col-12 col-lg-5 animate-card delay-4">
+      <div class="glass-card p-4 h-100">
+        <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+          <i class="bi bi-pie-chart-fill text-secondary"></i> Spending by Category
+        </h5>
+        <div *ngIf="categoryChartData.labels?.length === 0" class="text-center py-5 text-secondary">
+          No spending data available.
+        </div>
+        <div *ngIf="categoryChartData.labels && categoryChartData.labels.length > 0" style="height: 250px; position: relative;">
+          <canvas baseChart
+                  [data]="categoryChartData"
+                  [options]="doughnutOptions"
+                  [type]="'doughnut'">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Bar -->
+    <div class="col-12 col-lg-7 animate-card delay-4">
+      <div class="glass-card p-4 h-100">
+        <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+          <i class="bi bi-bar-chart-fill text-secondary"></i> 6-Month History
+        </h5>
+        <div style="height: 250px; position: relative;">
+          <canvas baseChart
+                  [data]="monthlyChartData"
+                  [options]="chartOptions"
+                  [type]="'line'">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Biggest Expense Spotlight -->
+  <div class="mb-5 animate-card delay-5" *ngIf="biggestExpense">
+    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+      <i class="bi bi-star-fill text-warning"></i> Biggest Expense
+    </h5>
+    <div class="glass-card p-4 d-flex align-items-center gap-4 flex-wrap" style="border:1px solid rgba(254,202,87,0.3); background: rgba(254,202,87,0.05);">
+      <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0 shadow-lg"
+           style="width:60px;height:60px;background:linear-gradient(135deg,#feca57,#ff9f43);font-size:24px;">
+        <i class="bi bi-receipt-cutoff"></i>
+      </div>
+      <div class="flex-grow-1">
+        <p class="m-0 text-warning small text-uppercase fw-bold mb-1" style="letter-spacing:1px;">Top Spender</p>
+        <h3 class="fw-bold m-0 text-white">{{ biggestExpense.description }}</h3>
+        <small class="text-secondary d-block mt-1">
+          Added on {{ biggestExpense.createdAt | date:'mediumDate' }} by {{ biggestExpense.createdBy?.name }}
+        </small>
+      </div>
+      <div class="text-end mt-3 mt-md-0">
+        <small class="text-secondary d-block text-uppercase mb-1" style="letter-spacing: 1px;">Total Cost</small>
+        <h2 class="fw-bold m-0 text-warning">₹{{ biggestExpense.totalAmount | number:'1.2-2' }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Friends -->
+  <div class="mb-5 animate-card delay-5">
+    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+      <i class="bi bi-people-fill text-secondary"></i> Top Shared Expenses With
+    </h5>
+    
+    <div *ngIf="topFriends.length === 0" class="glass-card p-4 text-center text-secondary">
+      You haven't split expenses with anyone yet.
+    </div>
+
+    <div class="row g-3" *ngIf="topFriends.length > 0">
+      <div *ngFor="let friend of topFriends; let i = index" class="col-12 col-md-6 col-lg-3">
+        <div class="glass-card p-3 d-flex align-items-center gap-3 transition-hover">
+          <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold text-dark flex-shrink-0"
+               style="width:44px;height:44px;background:linear-gradient(135deg,#00ffcc,#007bff);font-size:16px;">
+            {{ friend.initial }}
+          </div>
+          <div class="flex-grow-1 overflow-hidden">
+            <p class="m-0 fw-semibold text-truncate">{{ friend.name }}</p>
+            <small class="text-secondary d-block mt-1">Shared: <span class="text-light fw-bold">₹{{ friend.amount | number:'1.2-2' }}</span></small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

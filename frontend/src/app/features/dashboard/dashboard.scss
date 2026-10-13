@@ -1,0 +1,31 @@
+.settle-btn {
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  white-space: nowrap;
+  min-width: 160px;
+  transition: all 0.3s ease;
+}
+
+.settle-btn i {
+  color: #00ffcc;
+}
+
+.settle-btn:hover {
+  color: white !important;
+  background: rgba(255,255,255,0.12) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+}
+
+.settle-btn:hover i {
+  color: #00ffcc !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 576px) {
+  .settle-btn {
+    min-width: auto;
+    padding: 8px 16px !important;
+    font-size: 14px;
+  }
+}
